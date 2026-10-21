@@ -4,8 +4,10 @@ import { sql, assegurarEsquema, RANGS, PREU, jsonComanda } from "../lib/db.js";
 // Només llegeix. És el que fa servir la còpia horària al full de càlcul:
 // demana la llista de comandes i no pot tocar res.
 //
-// Clau: la variable CLAU_EXPORT (o, si no hi és, la del panell). Va a la
-// capçalera "x-clau", mai a l'adreça, perquè no quedi escrita als registres.
+// Clau: la variable CLAU_EXPORT, i només aquesta. La del panell no serveix
+// aquí a propòsit: si es fes servir de recanvi, una variable mal posada
+// passaria desapercebuda. Va a la capçalera "x-clau", mai a l'adreça,
+// perquè no quedi escrita als registres.
 export default async function handler(req, res) {
   if (req.method !== "GET" && req.method !== "POST") {
     res.status(405).json({ error: "method_not_allowed" });
@@ -16,7 +18,7 @@ export default async function handler(req, res) {
     // pugui distingir "la clau no hi és" de "la clau no és aquesta".
     res.status(401).json({
       error: "clau_incorrecta",
-      configurada: Boolean((process.env.CLAU_EXPORT || "").trim()),
+      configurada: Boolean(clauBona()),
       // Quin codi s'està executant. Serveix per saber si un canvi de
       // variables ja s'ha desplegat o encara no.
       desplegament: (process.env.VERCEL_GIT_COMMIT_SHA || "").slice(0, 7)
@@ -53,7 +55,7 @@ export default async function handler(req, res) {
 }
 
 function clauBona() {
-  return (process.env.CLAU_EXPORT || process.env.CLAU_PANELL || "").trim();
+  return (process.env.CLAU_EXPORT || "").trim();
 }
 
 function clauCorrecta(rebuda) {

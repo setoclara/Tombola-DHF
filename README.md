@@ -72,10 +72,13 @@ pàgina. No has d'executar cap SQL.
 `/api/export` torna totes les comandes en JSON i **no pot canviar res**. D'aquí baixa
 la còpia horària al Google Sheet.
 
-Va protegit amb una clau pròpia, `CLAU_EXPORT` (Settings → Environment Variables, els
-tres entorns). És a part de la del panell a propòsit: si algun dia s'ha de canviar,
-es canvia sense tocar la contrasenya amb què entreu vosaltres. Si no hi poses
-`CLAU_EXPORT`, s'accepta la del panell.
+Va protegit amb una clau pròpia, `CLAU_EXPORT`: **afegeix-la com a variable nova**
+(Settings → Environment Variables, els tres entorns), sense tocar `CLAU_PANELL`. Han
+de quedar-hi les dues. És a part de la del panell a propòsit: si algun dia s'ha de
+canviar, es canvia sense tocar la contrasenya amb què entreu vosaltres.
+
+La contrasenya del panell **no** serveix per a `/api/export`, i és volgut: si es fes
+servir de recanvi, una variable mal posada funcionaria igualment i no us n'adonaríeu.
 
 La clau va sempre a la capçalera `x-clau`, mai a l'adreça, perquè no quedi escrita
 als registres de Vercel:
