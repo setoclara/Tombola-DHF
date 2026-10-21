@@ -12,9 +12,11 @@ export default async function handler(req, res) {
     return;
   }
   if (!clauCorrecta(req.headers["x-clau"])) {
+    // "configurada" parla només de CLAU_EXPORT, perquè la còpia horària
+    // pugui distingir "la clau no hi és" de "la clau no és aquesta".
     res.status(401).json({
       error: "clau_incorrecta",
-      configurada: Boolean(clauBona())
+      configurada: Boolean((process.env.CLAU_EXPORT || "").trim())
     });
     return;
   }
