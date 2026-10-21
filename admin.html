@@ -386,7 +386,7 @@
       <div class="taula-caixa">
         <table>
           <thead>
-            <tr><th>Concepte</th><th>Correu</th><th>Quants</th><th>Import</th><th>Pagament</th><th>Rebuda</th><th></th></tr>
+            <tr><th>Concepte</th><th>Nom</th><th>Correu</th><th>Quants</th><th>Import</th><th>Pagament</th><th>Rebuda</th><th></th></tr>
           </thead>
           <tbody id="cosPendents">
             <tr><td colspan="7" class="buit">Carregant…</td></tr>
@@ -402,6 +402,10 @@
         <div class="camp">
           <label for="aEmail">Correu</label>
           <input type="email" id="aEmail" placeholder="nom@correu.com" spellcheck="false">
+        </div>
+        <div class="camp">
+          <label for="aNom">Nom i cognom</label>
+          <input type="text" id="aNom" placeholder="Opcional" maxlength="80">
         </div>
         <div class="camp">
           <label for="aQuantitat">Números</label>
@@ -440,7 +444,7 @@
       <div class="taula-caixa">
         <table>
           <thead>
-            <tr><th>Números</th><th>Correu</th><th>Quants</th><th>Import</th><th>Venda</th><th>Correu</th><th>Confirmada</th><th></th></tr>
+            <tr><th>Números</th><th>Nom</th><th>Correu</th><th>Quants</th><th>Import</th><th>Venda</th><th>Correu</th><th>Confirmada</th><th></th></tr>
           </thead>
           <tbody id="cosAssignats">
             <tr><td colspan="8" class="buit">Carregant…</td></tr>
@@ -616,7 +620,7 @@
 
     if (!llista.length) {
       var tr0 = document.createElement("tr");
-      cel·la(tr0, "Cap comanda per comprovar.", "buit").colSpan = 7;
+      cel·la(tr0, "Cap comanda per comprovar.", "buit").colSpan = 8;
       cos.appendChild(tr0);
       return;
     }
@@ -624,6 +628,7 @@
     llista.forEach(function (c) {
       var tr = document.createElement("tr");
       cel·la(tr, c.ref, "nums");
+      cel·la(tr, c.nom || "—");
       cel·la(tr, c.email, "correu");
       cel·la(tr, String(c.quantitat), "xifra");
       cel·la(tr, eur(c.import), "xifra");
@@ -645,6 +650,7 @@
     var comNum = parseInt(q, 10);
     return base.filter(function (c) {
       if (c.email.toLowerCase().indexOf(q) !== -1) return true;
+      if ((c.nom || "").toLowerCase().indexOf(q) !== -1) return true;
       if (isFinite(comNum) && c.numeros.indexOf(comNum) !== -1) return true;
       return false;
     });
@@ -663,7 +669,7 @@
 
     if (!llista.length) {
       var tr0 = document.createElement("tr");
-      cel·la(tr0, tots.length ? "Cap comanda coincideix amb la cerca." : "Encara no hi ha números assignats.", "buit").colSpan = 8;
+      cel·la(tr0, tots.length ? "Cap comanda coincideix amb la cerca." : "Encara no hi ha números assignats.", "buit").colSpan = 9;
       cos.appendChild(tr0);
       return;
     }
@@ -671,6 +677,7 @@
     llista.forEach(function (c) {
       var tr = document.createElement("tr");
       cel·la(tr, c.numeros.join(", "), "nums");
+      cel·la(tr, c.nom || "—");
       cel·la(tr, c.email, "correu");
       cel·la(tr, String(c.quantitat), "xifra");
       cel·la(tr, eur(c.import), "xifra");
@@ -685,7 +692,11 @@
 
       var td = document.createElement("td");
       td.className = "cel-accions";
-      td.appendChild(botoMini("Enviar correu", "", function () { obrirCorreu(c); }));
+      // Un cop marcat com a enviat, el botó d'enviar desapareix: així ningú no
+      // envia el mateix correu dues vegades. Torna a sortir si es desmarca.
+      if (!enviat) {
+        td.appendChild(botoMini("Enviar correu", "", function () { obrirCorreu(c); }));
+      }
       td.appendChild(botoMini(enviat ? "Marca per enviar" : "Marca enviat", "", function () {
         marcarCorreu(c, enviat ? "per_enviar" : "enviat");
       }));
@@ -747,6 +758,7 @@
     try {
       var r = await crida("alta", {
         email: email,
+        nom: $("aNom").value.trim(),
         quantitat: quantitat,
         canal: $("aCanal").value,
         pagat: $("aCobrament").value === "pagat"
@@ -756,6 +768,7 @@
         ? "Alta feta: " + email + " → " + r.numeros.join(", ")
         : "Afegida a la llista per comprovar.", true);
       $("aEmail").value = "";
+      $("aNom").value = "";
       $("aQuantitat").value = "1";
     } catch (e) {
       avis($("avisAlta"), "No s'ha pogut donar d'alta (" + e.codi + ")" + detallErr(e), false);
@@ -822,7 +835,7 @@
 
   function cosCorreu(c) {
     var dalt = [
-      "Hola!",
+      c.nom ? "Hola, " + c.nom.split(" ")[0] + "!" : "Hola!",
       "",
       "Hem comprovat el teu pagament de " + eur(c.import) + " i ja tens els teus números de la Tómbola DHF.",
       "",
@@ -878,11 +891,11 @@
   });
 
   $("baixarCsv").addEventListener("click", function () {
-    var files = [["numero", "correu", "venda", "cobrament", "correu_enviat", "confirmada"]];
+    var files = [["numero", "nom", "correu", "venda", "cobrament", "correu_enviat", "confirmada"]];
     var solts = [];
     dades.comandes.forEach(function (c) {
       c.numeros.forEach(function (n) {
-        solts.push([n, c.email, nomCanal(c.canal), c.estat, c.correuEstat === "enviat" ? "si" : "no", c.pagatEl || ""]);
+        solts.push([n, c.nom || "", c.email, nomCanal(c.canal), c.estat, c.correuEstat === "enviat" ? "si" : "no", c.pagatEl || ""]);
       });
     });
     solts.sort(function (a, b) { return a[0] - b[0]; });

@@ -1,5 +1,5 @@
 import {
-  sql, assegurarEsquema, emailValid, novaRef,
+  sql, assegurarEsquema, emailValid, nomValid, novaRef,
   METODES, MAX_PER_COMANDA, PREU
 } from "../lib/db.js";
 
@@ -34,11 +34,16 @@ export default async function handler(req, res) {
 // "iniciada" i li torna el concepte de pagament, que genera el servidor.
 async function inicia(cos, res) {
   const email = String(cos.email || "").trim().toLowerCase();
+  const nom = String(cos.nom || "").trim().replace(/\s+/g, " ");
   const quantitat = Number.parseInt(cos.quantitat, 10);
   const metode = METODES[cos.metode] ? cos.metode : "revolut";
 
   if (!emailValid(email)) {
     res.status(400).json({ error: "correu_invalid" });
+    return;
+  }
+  if (!nomValid(nom)) {
+    res.status(400).json({ error: "nom_invalid" });
     return;
   }
   if (!Number.isFinite(quantitat) || quantitat < 1 || quantitat > MAX_PER_COMANDA) {
@@ -60,8 +65,8 @@ async function inicia(cos, res) {
     const ref = novaRef();
     try {
       const files = await sql`
-        INSERT INTO comandes (ref, email, quantitat, canal, metode, estat)
-        VALUES (${ref}, ${email}, ${quantitat}, 'online', ${metode}, 'iniciada')
+        INSERT INTO comandes (ref, email, nom, quantitat, canal, metode, estat)
+        VALUES (${ref}, ${email}, ${nom}, ${quantitat}, 'online', ${metode}, 'iniciada')
         RETURNING ref`;
       res.status(200).json({ ok: true, ref: files[0].ref, import: quantitat * PREU });
       return;

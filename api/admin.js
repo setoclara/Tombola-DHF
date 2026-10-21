@@ -62,7 +62,7 @@ function clauCorrecta(rebuda) {
 
 async function llista(res) {
   const files = await sql`
-    SELECT c.id, c.ref, c.email, c.quantitat, c.canal, c.metode, c.estat,
+    SELECT c.id, c.ref, c.email, c.nom, c.quantitat, c.canal, c.metode, c.estat,
            c.correu_estat, c.creat_el, c.pagat_el,
            COALESCE(array_agg(n.num ORDER BY n.num) FILTER (WHERE n.num IS NOT NULL), '{}') AS numeros
     FROM comandes c
@@ -179,6 +179,9 @@ async function marcaCorreu(cos, res) {
 // Alta manual: venda en mà, o una comanda que us arriba per un altre canal.
 async function alta(cos, res) {
   const email = String(cos.email || "").trim().toLowerCase();
+  // A l'alta manual el nom no és obligatori: moltes vendes en mà es fan
+  // sense apuntar-lo.
+  const nom = String(cos.nom || "").trim().replace(/\s+/g, " ").slice(0, 80);
   const quantitat = Number.parseInt(cos.quantitat, 10);
   const canal = RANGS[cos.canal] ? cos.canal : "presencial";
   const metode = METODES[cos.metode] ? cos.metode : "";
@@ -196,8 +199,8 @@ async function alta(cos, res) {
   for (let intent = 0; intent < 5 && !creada; intent++) {
     try {
       const files = await sql`
-        INSERT INTO comandes (ref, email, quantitat, canal, metode, estat)
-        VALUES (${novaRef()}, ${email}, ${quantitat}, ${canal}, ${metode}, 'pendent')
+        INSERT INTO comandes (ref, email, nom, quantitat, canal, metode, estat)
+        VALUES (${novaRef()}, ${email}, ${nom}, ${quantitat}, ${canal}, ${metode}, 'pendent')
         RETURNING id, ref`;
       creada = files[0];
     } catch (e) {

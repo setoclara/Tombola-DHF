@@ -165,9 +165,8 @@
   .total-mot { font-family: var(--condensada); font-weight: 600; font-size: 0.85rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--suau); }
   .total-xifra { font-family: var(--titol); font-style: italic; font-weight: 900; font-size: clamp(2.3rem, 10vw, 3.1rem); line-height: 0.95; font-variant-numeric: tabular-nums; }
   .total-detall { font-size: 0.85rem; color: var(--suau); }
-  .anotacio { display: flex; align-items: center; gap: 6px; }
-  .anotacio .ma { color: var(--rei); font-size: 1.2rem; }
-  .anotacio .fletxa { color: var(--rei); width: 48px; height: 30px; }
+  .anotacio { display: flex; align-items: center; justify-content: flex-end; }
+  .anotacio .ma { color: var(--rei); font-size: 1.6rem; line-height: 1.15; text-align: right; }
 
   .boto {
     font-family: var(--condensada); font-weight: 700; font-size: 1.15rem; letter-spacing: 0.08em;
@@ -360,6 +359,12 @@
       </div>
 
       <div class="camp">
+        <label for="nom">El teu nom i cognom</label>
+        <input type="text" id="nom" name="nom" placeholder="Nom i cognom" autocomplete="name" autocapitalize="words" maxlength="80">
+        <span class="pista">Ens serveix per trobar el teu pagament si al Bizum no hi va el concepte.</span>
+      </div>
+
+      <div class="camp">
         <label for="cantidad">Quants números vols?</label>
         <div class="comptador">
           <button type="button" class="pas" id="menos" aria-label="Treure un número">−</button>
@@ -384,7 +389,6 @@
           <p class="total-detall" id="desglose">1 número × 5,00 €</p>
         </div>
         <p class="anotacio">
-          <svg class="fletxa" viewBox="0 0 80 46" aria-hidden="true"><path d="M74 9 C 52 6, 22 12, 10 33" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M19 27 L9 34 L17 41" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
           <span class="ma">3 números,<br>3 oportunitats</span>
         </p>
       </div>
@@ -515,8 +519,10 @@
   var eur = function (n) { return eurFmt.format(n); };
   var $ = function (id) { return document.getElementById(id); };
   var RE_EMAIL = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
+  var nomNet = function (x) { return String(x || "").trim().replace(/\s+/g, " "); };
+  var nomOk = function (x) { return x.length >= 4 && x.length <= 80 && /\s/.test(x); };
 
-  var elEmail = $("email"), elCantidad = $("cantidad"), elImporte = $("importe"),
+  var elEmail = $("email"), elNom = $("nom"), elCantidad = $("cantidad"), elImporte = $("importe"),
       elDesglose = $("desglose"), elError = $("errorPedido"),
       zonaPedido = $("zonaPedido"), zonaResguardo = $("zonaResguardo");
   var pedidoActual = null;
@@ -574,6 +580,7 @@
 
   function textError(codi) {
     if (codi === "correu_invalid") return "Aquest correu no sembla vàlid.";
+    if (codi === "nom_invalid") return "Escriu el teu nom i el cognom.";
     if (codi === "quantitat_invalida") return "La quantitat ha de ser entre 1 i " + CONFIG.maxPorPedido + ".";
     if (codi === "massa_comandes") return "Has obert massa comandes avui amb aquest correu. Escriu-nos i ho mirem.";
     if (codi === "comanda_no_trobada") return "No trobem aquesta comanda. Torna a començar, si us plau.";
@@ -587,6 +594,7 @@
     return [
       "Comanda per a la Tómbola DHF",
       "Concepte: " + pedido.ref,
+      "Nom: " + (pedido.nom || "—"),
       "Correu: " + pedido.email,
       "Números: " + pedido.cantidad,
       "Import: " + eur(pedido.cantidad * CONFIG.precio),
@@ -715,6 +723,7 @@
     $("estadoCopia").textContent = "";
     if (netejar) {
       elEmail.value = "";
+      elNom.value = "";
       elCantidad.value = "1";
       pintarTotal();
       elEmail.focus();
@@ -727,10 +736,17 @@
 
   $("generar").addEventListener("click", async function () {
     var email = elEmail.value.trim();
+    var nom = nomNet(elNom.value);
     if (!RE_EMAIL.test(email)) {
       elError.textContent = "Escriu un correu vàlid per poder enviar-te els números.";
       elError.hidden = false;
       elEmail.focus();
+      return;
+    }
+    if (!nomOk(nom)) {
+      elError.textContent = "Escriu el teu nom i el cognom, per poder comprovar el pagament.";
+      elError.hidden = false;
+      elNom.focus();
       return;
     }
     elError.hidden = true;
@@ -741,10 +757,11 @@
     try {
       var r = await aviServidor("inicia", {
         email: email,
+        nom: nom,
         quantitat: cantidadActual(),
         metode: METODE_PER_DEFECTE
       });
-      var pedido = { email: email, cantidad: cantidadActual(), ref: r.ref, metode: METODE_PER_DEFECTE };
+      var pedido = { email: email, nom: nom, cantidad: cantidadActual(), ref: r.ref, metode: METODE_PER_DEFECTE };
       pedidoActual = pedido;
       desar();
       mostrarResguardo(pedido);
@@ -833,6 +850,7 @@
     var guardado = JSON.parse(localStorage.getItem("comandaTombolaDHF") || "null");
     if (guardado && RE_EMAIL.test(guardado.email || "") && guardado.ref) {
       elEmail.value = guardado.email;
+      elNom.value = guardado.nom || "";
       elCantidad.value = guardado.cantidad;
       if (!CONFIG.pagament[guardado.metode]) guardado.metode = METODE_PER_DEFECTE;
       pintarTotal();
