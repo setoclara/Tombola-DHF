@@ -513,6 +513,8 @@
 
   /* ---------- utilitats ---------- */
 
+  function detallErr(e) { return e && e.detall ? " — " + e.detall : ""; }
+
   function avis(node, txt, be) {
     node.textContent = txt;
     node.className = "resultat " + (be ? "be" : "mal");
@@ -716,7 +718,7 @@
     } catch (e) {
       avis($("avisPendents"), e.codi === "no_queden_numeros"
         ? "No queden prou números lliures en aquest tram."
-        : "No s'ha pogut confirmar (" + e.codi + ").", false);
+        : "No s'ha pogut confirmar (" + e.codi + ")" + detallErr(e), false);
     }
   }
 
@@ -726,7 +728,7 @@
       await carregar();
       avis(node, "Comanda de " + c.email + " eliminada.", true);
     } catch (e) {
-      avis(node, "No s'ha pogut eliminar (" + e.codi + ").", false);
+      avis(node, "No s'ha pogut eliminar (" + e.codi + ")" + detallErr(e), false);
     }
   }
 
@@ -759,7 +761,7 @@
       $("aEmail").value = "";
       $("aQuantitat").value = "1";
     } catch (e) {
-      avis($("avisAlta"), "No s'ha pogut donar d'alta (" + e.codi + ").", false);
+      avis($("avisAlta"), "No s'ha pogut donar d'alta (" + e.codi + ")" + detallErr(e), false);
     }
   });
 
