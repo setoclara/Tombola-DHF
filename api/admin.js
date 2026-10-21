@@ -85,9 +85,11 @@ async function llista(res) {
   });
 }
 
-// Assigna els números lliures més baixos del tram i deixa la comanda pagada.
+// Assigna números del tram a l'atzar i deixa la comanda pagada. A l'atzar i
+// no per ordre de compra: així no se sap qui ha comprat primer, i els números
+// repartits queden escampats per tot el tram.
 // Si dues confirmacions coincideixen en el mateix número, la clau primària
-// de la taula "numeros" en fa fallar una i es reintenta amb els següents.
+// de la taula "numeros" en fa fallar una i es reintenta amb uns altres.
 async function confirma(cos, res) {
   const id = String(cos.id || "");
   if (!/^\d+$/.test(id)) {
@@ -110,11 +112,13 @@ async function confirma(cos, res) {
   for (let intent = 0; intent < 5; intent++) {
     // Els tipus van explícits: sense els ::int, Postgres no sap de quin
     // tipus són els paràmetres de generate_series i la consulta peta.
+    // El tram té 700 números com a molt: mirar-los tots i triar-ne uns quants
+    // a l'atzar no costa res, i no cal provar números a cegues.
     const lliures = await sql`
       SELECT g AS num
       FROM generate_series(${rang[0]}::int, ${rang[1]}::int) g
       WHERE NOT EXISTS (SELECT 1 FROM numeros n WHERE n.num = g)
-      ORDER BY g
+      ORDER BY random()
       LIMIT ${comanda.quantitat}::int`;
 
     if (lliures.length < comanda.quantitat) {
@@ -122,7 +126,7 @@ async function confirma(cos, res) {
       return;
     }
 
-    const nums = lliures.map(function (f) { return f.num; });
+    const nums = lliures.map(function (f) { return f.num; }).sort(function (a, b) { return a - b; });
     try {
       // Una inserció per número, totes dins de la mateixa transacció: si
       // alguna falla no se n'aplica cap. Així no depenem de com es

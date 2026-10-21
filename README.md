@@ -58,7 +58,8 @@ no cap compte enlloc.
 2. Obre `https://el-teu-projecte.vercel.app` i fes una comanda de prova.
 3. Obre `https://el-teu-projecte.vercel.app/admin`, posa la contrasenya i mira que la
    comanda hi sigui.
-4. Confirma-la i comprova que li assigna els números 1 i 2.
+4. Confirma-la i comprova que li assigna dos números del tram d'internet (són a
+   l'atzar, així que no seran els mateixos cada vegada).
 5. Esborra la comanda de prova amb "Allibera els números".
 
 Les taules de la base de dades es creen soles la primera vegada que algú entra a la
@@ -120,6 +121,10 @@ en un minut.
 
 ## Com està fet, pel que pugui passar
 
+- **Els números es reparteixen a l'atzar dins del tram**, no per ordre de compra: qui
+  compra primer no es queda els números baixos. Els tria la base de dades
+  (`ORDER BY random()`) d'entre els que queden lliures, i al correu i al panell
+  surten ordenats de petit a gran.
 - **Un número no es pot donar dues vegades.** No ho vigila el codi: la taula `numeros`
   té el número com a clau primària, i la base de dades rebutja qualsevol repetició. Si
   dues persones confirmen alhora, una de les dues operacions falla i es reintenta amb
