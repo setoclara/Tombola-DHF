@@ -11,6 +11,7 @@ no cap compte enlloc.
 - `admin.html` — el panell d'organització, protegit amb contrasenya
 - `api/comanda.js` — el que crida la pàgina pública
 - `api/admin.js` — el que crida el panell
+- `api/export.js` — només llegeix: d'aquí surt la còpia al full de càlcul
 - `lib/db.js` — la base de dades, els preus, els trams de números i les formes de pagament
 
 ---
@@ -62,6 +63,28 @@ no cap compte enlloc.
 
 Les taules de la base de dades es creen soles la primera vegada que algú entra a la
 pàgina. No has d'executar cap SQL.
+
+---
+
+## La còpia al full de càlcul
+
+`/api/export` torna totes les comandes en JSON i **no pot canviar res**. D'aquí baixa
+la còpia horària al Google Sheet.
+
+Va protegit amb una clau pròpia, `CLAU_EXPORT` (Settings → Environment Variables, els
+tres entorns). És a part de la del panell a propòsit: si algun dia s'ha de canviar,
+es canvia sense tocar la contrasenya amb què entreu vosaltres. Si no hi poses
+`CLAU_EXPORT`, s'accepta la del panell.
+
+La clau va sempre a la capçalera `x-clau`, mai a l'adreça, perquè no quedi escrita
+als registres de Vercel:
+
+```
+curl -s https://tombola-dhf.vercel.app/api/export -H "x-clau: LA-CLAU"
+```
+
+Qui tingui aquesta clau pot **llegir** els noms, els correus i els números de
+tothom. No pot esborrar res ni assignar números.
 
 ---
 
