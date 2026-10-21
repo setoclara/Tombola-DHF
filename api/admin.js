@@ -95,7 +95,7 @@ async function confirma(cos, res) {
     return;
   }
 
-  const [comanda] = await sql`SELECT id, estat, quantitat, canal FROM comandes WHERE id = ${id}`;
+  const [comanda] = await sql`SELECT id, estat, quantitat, canal FROM comandes WHERE id = ${id}::bigint`;
   if (!comanda) {
     res.status(404).json({ error: "comanda_no_trobada" });
     return;
@@ -108,12 +108,14 @@ async function confirma(cos, res) {
   const rang = RANGS[comanda.canal] || RANGS.online;
 
   for (let intent = 0; intent < 5; intent++) {
+    // Els tipus van explícits: sense els ::int, Postgres no sap de quin
+    // tipus són els paràmetres de generate_series i la consulta peta.
     const lliures = await sql`
       SELECT g AS num
-      FROM generate_series(${rang[0]}, ${rang[1]}) g
+      FROM generate_series(${rang[0]}::int, ${rang[1]}::int) g
       WHERE NOT EXISTS (SELECT 1 FROM numeros n WHERE n.num = g)
       ORDER BY g
-      LIMIT ${comanda.quantitat}`;
+      LIMIT ${comanda.quantitat}::int`;
 
     if (lliures.length < comanda.quantitat) {
       res.status(409).json({ error: "no_queden_numeros", lliures: lliures.length });
@@ -122,13 +124,17 @@ async function confirma(cos, res) {
 
     const nums = lliures.map(function (f) { return f.num; });
     try {
-      await sql.transaction([
-        sql`INSERT INTO numeros (num, comanda_id)
-            SELECT u, ${id} FROM unnest(${nums}::int[]) AS u`,
+      // Una inserció per número, totes dins de la mateixa transacció: si
+      // alguna falla no se n'aplica cap. Així no depenem de com es
+      // serialitzen els vectors.
+      const insercions = nums.map(function (n) {
+        return sql`INSERT INTO numeros (num, comanda_id) VALUES (${n}::int, ${id}::bigint)`;
+      });
+      await sql.transaction(insercions.concat([
         sql`UPDATE comandes
             SET estat = 'pagat', pagat_el = now(), correu_estat = 'per_enviar'
-            WHERE id = ${id}`
-      ]);
+            WHERE id = ${id}::bigint`
+      ]));
       res.status(200).json({ ok: true, numeros: nums });
       return;
     } catch (e) {
@@ -146,7 +152,7 @@ async function elimina(cos, res) {
     return;
   }
   // Els números tornen a quedar lliures (ON DELETE CASCADE).
-  const files = await sql`DELETE FROM comandes WHERE id = ${id} RETURNING ref`;
+  const files = await sql`DELETE FROM comandes WHERE id = ${id}::bigint RETURNING ref`;
   if (!files.length) {
     res.status(404).json({ error: "comanda_no_trobada" });
     return;
@@ -162,7 +168,7 @@ async function marcaCorreu(cos, res) {
     return;
   }
   const files = await sql`
-    UPDATE comandes SET correu_estat = ${estat} WHERE id = ${id} RETURNING ref`;
+    UPDATE comandes SET correu_estat = ${estat} WHERE id = ${id}::bigint RETURNING ref`;
   if (!files.length) {
     res.status(404).json({ error: "comanda_no_trobada" });
     return;
