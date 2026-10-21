@@ -16,7 +16,10 @@ export default async function handler(req, res) {
     // pugui distingir "la clau no hi és" de "la clau no és aquesta".
     res.status(401).json({
       error: "clau_incorrecta",
-      configurada: Boolean((process.env.CLAU_EXPORT || "").trim())
+      configurada: Boolean((process.env.CLAU_EXPORT || "").trim()),
+      // Quin codi s'està executant. Serveix per saber si un canvi de
+      // variables ja s'ha desplegat o encara no.
+      desplegament: (process.env.VERCEL_GIT_COMMIT_SHA || "").slice(0, 7)
     });
     return;
   }
