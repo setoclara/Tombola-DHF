@@ -685,10 +685,7 @@
 
       var td = document.createElement("td");
       td.className = "cel-accions";
-      td.appendChild(botoMini("Copia el correu", "", function () {
-        copiar(correuComText(c));
-        avis($("avisAssignats"), "Correu de " + c.email + " copiat.", true);
-      }));
+      td.appendChild(botoMini("Enviar correu", "", function () { obrirCorreu(c); }));
       td.appendChild(botoMini(enviat ? "Marca per enviar" : "Marca enviat", "", function () {
         marcarCorreu(c, enviat ? "per_enviar" : "enviat");
       }));
@@ -767,24 +764,110 @@
 
   /* ---------- correus i CSV ---------- */
 
-  var ASSUMPTE = "Els teus números de la Tómbola DHF";
+  var ASSUMPTE = "Ja tens els teus números de la Tómbola DHF";
 
-  function correuComText(c) {
-    return [
-      "Per a: " + c.email,
-      "Assumpte: " + ASSUMPTE,
-      "",
+  // Els premis del correu, per blocs. Per canviar-los, toca només això.
+  var PREMIS = [
+    { titol: "Esport i hoquei", items: [
+      "Sabatilles Munich (2 parells)",
+      "Raqueta de tennis Wilson",
+      "Bossa Wilson",
+      "Raquetero i pala de pàdel",
+      "Grips d'hoquei Chamrox",
+      "Guant Osaka rosa, talla M",
+      "Samarreta de l'HGC",
+      "Samarreta de la segona equipació del DHF",
+      "Samarreta de la selecció espanyola, vermella",
+      "Samarreta de la selecció espanyola, blava",
+      "Samarreta de selecció",
+      "2 × samarreta catalana",
+      "2 × classe individual d'hoquei, amb la Laia Vidosa i la Maria Vidal",
+      "Classe de HYROX a Soushal",
+      "Classe de ioga al Club Pilates Sant Cugat",
+      "2 × classe de pilates a Waterlemon Studio"
+    ] },
+    { titol: "Menjar i beure", items: [
+      "Dinar o sopar per a 2 persones a La Bolera",
+      "Sopar a La Bodegueta",
+      "Esmorzar complet a Soushal",
+      "Bula Coffee: bossa de grans de cafè, samarreta i vals per a cafès",
+      "Bula Coffee: vals per a cafès",
+      "Lot de xarcuteria J. Grau",
+      "Lot Turris",
+      "4 × ampolla de vi negre",
+      "Caves Vallformosa, 12 ampolles"
+    ] },
+    { titol: "Casa, roba i cura", items: [
+      "5 × pijama de Women's Secret",
+      "2 × sabatilles de Women's Secret",
+      "Necesser de Women's Secret",
+      "Bossa per a tuppers de Women's Secret",
+      "Termo de Women's Secret",
+      "Pack de mostres de cremes",
+      "Pack de 4 posavasos rústics",
+      "Productes Hurley, Yeti i Reebok",
+      "Neteja i blanquejament dental a Holydent",
+      "Neteja facial a Mimat Salut"
+    ] },
+    { titol: "Sortides i entrades", items: [
+      "Entrades VIP del Moto GP a Montmeló",
+      "Entrades al Poble Espanyol",
+      "Entrades de l'handbol a Granollers",
+      "Sortides al camp de golf"
+    ] }
+  ];
+
+  // Línia final de la llista de premis. Deixa-la buida ("") per treure-la.
+  var CUA_PREMIS = "I moltes sorpreses més!";
+
+  function cosCorreu(c) {
+    var dalt = [
       "Hola!",
       "",
-      "Hem comprovat el teu pagament de " + eur(c.import) + " per a la Tómbola DHF.",
+      "Hem comprovat el teu pagament de " + eur(c.import) + " i ja tens els teus números de la Tómbola DHF.",
       "",
-      "Els teus números són: " + c.numeros.join(", "),
+      "ELS TEUS NÚMEROS: " + c.numeros.join(", "),
       "",
-      "Guarda aquest correu. La tómbola es fa el 20 i 21 de novembre de 2026 i t'avisem si et toca algun premi.",
+      "Guarda aquest correu: és el teu resguard. La tómbola es fa el 20 i 21 de novembre de 2026, i si et toca algun premi t'avisem de seguida.",
       "",
-      "Gràcies per col·laborar!",
+      "QUÈ ES POT GUANYAR",
+      "Els premis els posen els comerços i els amics del club. Això és el que es pot guanyar:"
+    ];
+    var baix = [
+      "",
+      "Moltes gràcies per col·laborar amb el club!",
       "Tómbola DHF"
-    ].join("\n");
+    ];
+    var llista = [];
+    PREMIS.forEach(function (bloc) {
+      llista.push("");
+      llista.push(bloc.titol.toUpperCase());
+      bloc.items.forEach(function (x) { llista.push("· " + x); });
+    });
+    if (CUA_PREMIS) {
+      llista.push("");
+      llista.push(CUA_PREMIS);
+    }
+    return dalt.concat(llista).concat(baix).join("\n");
+  }
+
+  function correuComText(c) {
+    return ["Per a: " + c.email, "Assumpte: " + ASSUMPTE, "", cosCorreu(c)].join("\n");
+  }
+
+  // Obre una pestanya amb el correu ja redactat, a punt d'enviar.
+  function obrirCorreu(c) {
+    var url = "https://mail.google.com/mail/?view=cm&fs=1"
+      + "&to=" + encodeURIComponent(c.email)
+      + "&su=" + encodeURIComponent(ASSUMPTE)
+      + "&body=" + encodeURIComponent(cosCorreu(c));
+    if (url.length > 7000) {
+      copiar(correuComText(c));
+      avis($("avisAssignats"), "El correu és massa llarg per obrir-lo sol; l'he copiat perquè l'enganxis.", false);
+      return;
+    }
+    window.open(url, "_blank", "noopener");
+    avis($("avisAssignats"), "Correu obert per a " + c.email + ". Quan l'hagis enviat, prem \"Marca enviat\".", true);
   }
 
   $("copiarCorreus").addEventListener("click", function () {
