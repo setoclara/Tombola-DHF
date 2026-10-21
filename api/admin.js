@@ -12,7 +12,13 @@ export default async function handler(req, res) {
     return;
   }
   if (!clauCorrecta(req.headers["x-clau"])) {
-    res.status(401).json({ error: "clau_incorrecta" });
+    // "configurada" diu si la variable CLAU_PANELL existeix en aquest
+    // desplegament. No revela la contrasenya, i permet distingir
+    // "l'has escrita malament" de "la variable no hi arriba".
+    res.status(401).json({
+      error: "clau_incorrecta",
+      configurada: Boolean((process.env.CLAU_PANELL || "").trim())
+    });
     return;
   }
 
@@ -43,9 +49,12 @@ export default async function handler(req, res) {
 }
 
 function clauCorrecta(rebuda) {
-  const bona = process.env.CLAU_PANELL || "";
-  if (!bona || typeof rebuda !== "string" || !rebuda) return false;
-  const a = Buffer.from(rebuda);
+  // Es neteja als dos costats: enganxant la contrasenya a Vercel és fàcil
+  // que s'hi coli un espai o un salt de línia al final.
+  const bona = (process.env.CLAU_PANELL || "").trim();
+  const dita = typeof rebuda === "string" ? rebuda.trim() : "";
+  if (!bona || !dita) return false;
+  const a = Buffer.from(dita);
   const b = Buffer.from(bona);
   if (a.length !== b.length) return false;
   return timingSafeEqual(a, b);
