@@ -1,0 +1,847 @@
+<!doctype html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tómbola DHF</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&family=Bodoni+Moda:ital,opsz,wght@1,6..96,700..900&family=Caveat:wght@500;600&display=swap">
+<style>
+  :root { color-scheme: light; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+  body { margin: 0; }
+  img { max-width: 100%; }
+  [hidden] { display: none !important; }
+</style>
+<style>
+  /* Layout: nit del camp d'hoquei — hèroi de nit, el bitllet blau com a
+     formulari, el repartiment de números i el panell d'organització al peu. Tema únic fosc. */
+  :root {
+    --nit: #0B131F;
+    --nit-2: #111C2A;
+    --vora: #22324A;
+    --gel: #A9C2EA;
+    --gel-pal: #DCE7F8;
+    --gel-fosc: #6E8CC4;
+    --rei: #2B3EA0;
+    --blanc: #F3F6FB;
+    --boira: #93A5BE;
+    --cobrat: #4FC08D;
+    --pendent: #E3A742;
+    --roig: #FF8A80;
+
+    --titol: "Bodoni Moda", "Didot", "Playfair Display", Georgia, serif;
+    --condensada: "Barlow Condensed", "Arial Narrow", Helvetica, sans-serif;
+    --cos: "Barlow", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    --ma: "Caveat", "Segoe Script", cursive;
+    color-scheme: dark;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+
+  body {
+    background: var(--nit);
+    color: var(--blanc);
+    font-family: var(--cos);
+    font-size: 16px;
+    line-height: 1.55;
+    padding: 0;
+    -webkit-text-size-adjust: 100%;
+  }
+  .gutter {
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  .centre { max-width: 720px; margin: 0 auto; }
+  .ample { max-width: 1040px; margin: 0 auto; }
+  .pila { display: flex; flex-direction: column; }
+
+  h1, h2, h3 { margin: 0; font-weight: 400; text-wrap: balance; }
+  p { margin: 0; }
+  a { color: var(--gel); }
+
+  .sobretitol {
+    font-family: var(--condensada); font-weight: 600; font-size: 0.9rem;
+    letter-spacing: 0.22em; text-transform: uppercase; color: var(--gel);
+  }
+  .plom { color: var(--boira); max-width: 56ch; }
+  .ma { font-family: var(--ma); font-size: 1.35rem; line-height: 1.25; color: var(--gel); }
+  .fletxa { width: 56px; height: 36px; color: var(--gel); flex: none; }
+
+  /* ---------- hèroi ---------- */
+  .heroi { position: relative; overflow: hidden; padding-block: 56px 48px; }
+  .heroi-fons {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(125% 95% at 50% 0%, rgba(43,62,160,0.42) 0%, rgba(11,19,31,0) 62%),
+      radial-gradient(80% 65% at 88% 18%, rgba(169,194,234,0.16) 0%, rgba(11,19,31,0) 72%),
+      repeating-linear-gradient(104deg, rgba(169,194,234,0.05) 0px, rgba(169,194,234,0.05) 1px, transparent 1px, transparent 48px);
+  }
+  .heroi-vel {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(11,19,31,0.72) 0%, rgba(11,19,31,0.58) 45%, var(--nit) 100%);
+  }
+  .heroi-dins { position: relative; display: flex; flex-direction: column; gap: 22px; }
+
+  h1 { font-family: var(--titol); font-style: italic; font-weight: 900; text-transform: uppercase; line-height: 0.84; letter-spacing: -0.015em; }
+  h1 span { display: block; }
+  .t-tombola { font-size: clamp(3.1rem, 15.5vw, 6.4rem); }
+  .t-dhf { font-size: clamp(3.4rem, 17vw, 7rem); margin-left: 0.06em; }
+  .data {
+    font-family: var(--condensada); font-weight: 700; font-size: clamp(1.1rem, 4.6vw, 1.6rem);
+    letter-spacing: 0.06em; text-transform: uppercase;
+  }
+
+  .preu-bitllet {
+    align-self: flex-start; display: flex; align-items: stretch; gap: 0;
+    background: var(--gel); color: var(--nit); border-radius: 13px; overflow: hidden;
+    box-shadow: 0 14px 30px rgba(0,0,0,0.42);
+  }
+  .preu-xifra {
+    font-family: var(--titol); font-style: italic; font-weight: 700;
+    font-size: 2.3rem; line-height: 1; padding: 13px 18px 15px;
+  }
+  .preu-tall { border-left: 2px dashed rgba(11,19,31,0.42); }
+  .preu-mot {
+    font-family: var(--condensada); font-weight: 700; font-size: 0.78rem;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    display: grid; place-items: center; padding: 0 14px;
+  }
+
+  /* ---------- el bitllet (formulari) ---------- */
+  .bitllet {
+    --txt: #0B131F; --suau: #4A5B74; --vora-loc: #94ACD6; --camp: #FFFFFF;
+    position: relative; color: var(--txt);
+    background: linear-gradient(165deg, var(--gel-pal) 0%, var(--gel) 100%);
+    border-radius: 16px; box-shadow: 0 18px 44px rgba(0,0,0,0.45);
+  }
+  .bitllet-banda {
+    display: flex; justify-content: space-between; align-items: baseline; gap: 12px;
+    padding: 13px 20px; border-bottom: 1px solid rgba(11,19,31,0.14);
+    font-family: var(--condensada); font-weight: 700; font-size: 0.82rem;
+    letter-spacing: 0.16em; text-transform: uppercase;
+  }
+  .bitllet-cos { padding: 22px 20px; display: flex; flex-direction: column; gap: 20px; }
+
+  .camp { display: flex; flex-direction: column; gap: 7px; }
+  .camp label { font-weight: 600; font-size: 0.95rem; }
+  .pista { font-size: 0.84rem; color: var(--suau); }
+  .bitllet input, .bitllet select, .bitllet textarea {
+    font-family: var(--cos); font-size: 1rem; color: var(--txt); background: var(--camp);
+    border: 1px solid var(--vora-loc); border-radius: 9px; padding: 11px 13px; width: 100%; min-width: 0;
+  }
+  .bitllet input::placeholder { color: #8395AE; }
+  input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visible {
+    outline: 2px solid var(--rei); outline-offset: 2px;
+  }
+
+  .comptador { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+  .pas {
+    width: 44px; height: 44px; flex: none; border-radius: 9px; cursor: pointer;
+    border: 1px solid var(--vora-loc); background: var(--camp); color: var(--txt);
+    font-size: 1.35rem; line-height: 1;
+  }
+  .pas:hover { border-color: var(--rei); color: var(--rei); }
+  #cantidad { width: 88px; text-align: center; font-weight: 600; font-size: 1.1rem; font-variant-numeric: tabular-nums; }
+  .dreceres { display: flex; gap: 6px; flex-wrap: wrap; }
+  .drecera {
+    font-family: var(--condensada); font-weight: 600; font-size: 0.95rem; letter-spacing: 0.04em;
+    padding: 8px 13px; cursor: pointer; border: 1px solid var(--vora-loc);
+    border-radius: 999px; background: transparent; color: var(--suau);
+  }
+  .drecera:hover { border-color: var(--rei); color: var(--rei); }
+  .drecera[aria-pressed="true"] { background: var(--rei); border-color: var(--rei); color: #FFF; }
+
+
+  .etiqueta-grup { font-weight: 600; font-size: 0.95rem; }
+  .troquel { position: relative; height: 1px; border-top: 2px dashed rgba(11,19,31,0.3); margin: 0 -20px; }
+  .troquel::before, .troquel::after {
+    content: ""; position: absolute; top: -10px; width: 20px; height: 20px;
+    border-radius: 50%; background: var(--nit);
+  }
+  .troquel::before { left: -10px; }
+  .troquel::after { right: -10px; }
+
+  .total { display: flex; align-items: flex-end; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+  .total-mot { font-family: var(--condensada); font-weight: 600; font-size: 0.85rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--suau); }
+  .total-xifra { font-family: var(--titol); font-style: italic; font-weight: 900; font-size: clamp(2.3rem, 10vw, 3.1rem); line-height: 0.95; font-variant-numeric: tabular-nums; }
+  .total-detall { font-size: 0.85rem; color: var(--suau); }
+  .anotacio { display: flex; align-items: center; gap: 6px; }
+  .anotacio .ma { color: var(--rei); font-size: 1.2rem; }
+  .anotacio .fletxa { color: var(--rei); width: 44px; height: 30px; transform: scaleY(-1); }
+
+  .boto {
+    font-family: var(--condensada); font-weight: 700; font-size: 1.15rem; letter-spacing: 0.08em;
+    text-transform: uppercase; cursor: pointer; background: var(--rei); color: #FFF;
+    border: 1px solid var(--rei); border-radius: 10px; padding: 14px 20px; width: 100%;
+    text-align: center; text-decoration: none;
+  }
+  a.boto { display: inline-block; }
+  .boto:hover { background: #22328A; }
+  .boto-contorn { background: transparent; color: #0B131F; border-color: #0B131F; }
+  .boto-contorn:hover { background: rgba(11,19,31,0.08); color: #0B131F; }
+  .boto-pla {
+    font-family: var(--cos); font-weight: 600; font-size: 0.9rem; cursor: pointer;
+    background: transparent; color: inherit; border: 1px solid currentColor;
+    border-radius: 9px; padding: 10px 15px; opacity: 0.82;
+  }
+  .boto-pla:hover { opacity: 1; }
+  .error { color: #A8201A; font-size: 0.88rem; font-weight: 600; }
+
+  /* ---------- resguard ---------- */
+  .resguard { display: flex; flex-direction: column; gap: 18px; }
+  .resguard h2 { font-family: var(--titol); font-style: italic; font-weight: 700; font-size: 1.7rem; }
+  .dada {
+    display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;
+    padding: 12px 14px; background: rgba(255,255,255,0.58); border: 1px solid var(--vora-loc); border-radius: 10px;
+  }
+  .dada-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+  .dada-clau { font-family: var(--condensada); font-weight: 600; font-size: 0.78rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--suau); }
+  .dada-valor { font-size: 1.1rem; font-weight: 600; font-variant-numeric: tabular-nums; word-break: break-word; }
+  .dada-valor.ref { font-family: var(--condensada); letter-spacing: 0.08em; color: var(--rei); }
+  .passos { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 13px; counter-reset: pas; }
+  .passos li { display: grid; grid-template-columns: 28px 1fr; gap: 12px; align-items: start; }
+  .passos li::before {
+    counter-increment: pas; content: counter(pas);
+    font-family: var(--condensada); font-weight: 700; font-size: 0.9rem;
+    width: 26px; height: 26px; display: grid; place-items: center;
+    border: 1.5px solid var(--rei); color: var(--rei); border-radius: 50%;
+  }
+  .enrere {
+    align-self: flex-start; display: inline-flex; align-items: center; gap: 7px;
+    background: rgba(255,255,255,0.45); border: 1px solid var(--vora-loc); border-radius: 999px;
+    padding: 8px 16px 8px 12px; cursor: pointer; color: #0B131F;
+    font-family: var(--cos); font-weight: 600; font-size: 0.92rem;
+  }
+  .enrere:hover { border-color: var(--rei); color: var(--rei); background: #FFF; }
+  .enrere svg { width: 16px; height: 16px; flex: none; }
+
+  .bitllet .mini { color: #0B131F; border-color: var(--vora-loc); align-self: flex-start; }
+  .bitllet .mini:hover { border-color: var(--rei); color: var(--rei); }
+
+  .pagaments { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  @media (max-width: 620px) { .pagaments { grid-template-columns: 1fr; } }
+  .pagament {
+    display: flex; flex-direction: column; gap: 7px; padding: 12px;
+    background: rgba(255,255,255,0.58); border: 1px solid var(--vora-loc); border-radius: 11px;
+  }
+  .pagament .boto { font-size: 0.92rem; letter-spacing: 0.04em; padding: 10px 8px; }
+  .pagament .dada-valor { font-size: 0.95rem; }
+  .pagament .mini { font-size: 0.76rem; padding: 4px 9px; }
+  .pagament.es-triat { border: 2px solid var(--rei); background: rgba(255,255,255,0.82); }
+  .pagament-dalt { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .triat {
+    font-family: var(--condensada); font-weight: 700; font-size: 0.72rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: #FFF; background: var(--rei); border-radius: 999px; padding: 2px 9px;
+  }
+  .pagament-qui { font-weight: 600; font-size: 0.95rem; }
+  .pagament-lletra { font-size: 0.82rem; color: var(--suau); overflow-wrap: break-word; }
+  .contacte { font-size: 0.98rem; white-space: nowrap; }
+  .resultat-registre {
+    font-size: 0.9rem; font-weight: 600; color: var(--rei);
+    background: rgba(43,62,160,0.08); border: 1px solid var(--rei);
+    border-radius: 9px; padding: 9px 12px;
+  }
+  .resum-caixa {
+    font-family: var(--cos); font-size: 0.92rem; line-height: 1.6;
+    background: var(--camp); resize: vertical; min-height: 150px;
+  }
+
+  .passos strong, .passos span { grid-column: 2; }
+  .passos span { font-size: 0.9rem; color: var(--suau); }
+  .accions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .accions .boto { width: auto; }
+
+  /* ---------- seccions fosques ---------- */
+  .seccio { display: flex; flex-direction: column; gap: 18px; }
+  h2.titol-seccio { font-family: var(--titol); font-style: italic; font-weight: 700; font-size: clamp(1.8rem, 7vw, 2.6rem); text-transform: uppercase; line-height: 0.95; }
+  h3 { font-family: var(--condensada); font-weight: 700; font-size: 1.05rem; letter-spacing: 0.08em; text-transform: uppercase; }
+
+  .barra-tram { display: flex; height: 58px; border-radius: 11px; overflow: hidden; }
+  .tram { display: grid; place-items: center; text-align: center; padding: 0 8px; font-family: var(--condensada); font-weight: 600; font-size: 0.92rem; letter-spacing: 0.04em; text-transform: uppercase; }
+  .tram-online { background: var(--gel); color: var(--nit); }
+  .tram-ma { background: var(--nit-2); color: var(--boira); border: 1px solid var(--vora); border-left: none; }
+  .notes { display: grid; gap: 11px; }
+  .nota { font-size: 0.93rem; color: var(--boira); display: grid; grid-template-columns: 12px 1fr; gap: 11px; align-items: start; }
+  .nota strong { color: var(--blanc); font-weight: 600; }
+  .punt { width: 10px; height: 10px; border-radius: 3px; margin-top: 7px; }
+  .punt-online { background: var(--gel); }
+  .punt-ma { background: var(--nit-2); border: 1px solid var(--vora); }
+  .anotacio-ma { display: flex; align-items: flex-start; gap: 10px; padding-left: 4px; }
+  .anotacio-ma .fletxa { transform: rotate(8deg); }
+
+  .legal { font-size: 0.86rem; color: var(--boira); border-top: 1px solid var(--vora); padding-top: 18px; }
+
+  /* ---------- panell ---------- */
+  .panell { border-top: 1px solid var(--vora); padding-top: 34px; display: flex; flex-direction: column; gap: 20px; }
+  .marcadors { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 12px; }
+  .marcador { background: var(--nit-2); border: 1px solid var(--vora); border-radius: 11px; padding: 14px; display: flex; flex-direction: column; gap: 4px; }
+  .marcador-valor { font-family: var(--condensada); font-weight: 700; font-size: 1.6rem; line-height: 1.05; font-variant-numeric: tabular-nums; }
+  .marcador-clau { font-family: var(--condensada); font-weight: 600; font-size: 0.76rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--boira); }
+  .medidor { height: 5px; border-radius: 999px; background: var(--vora); overflow: hidden; margin-top: 5px; }
+  .medidor i { display: block; height: 100%; background: var(--gel); }
+
+  .caixa { background: var(--nit-2); border: 1px solid var(--vora); border-radius: 12px; padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+  .caixa input, .caixa select, .caixa textarea {
+    font-family: var(--cos); font-size: 1rem; color: var(--blanc); background: var(--nit);
+    border: 1px solid var(--vora); border-radius: 9px; padding: 11px 13px; width: 100%; min-width: 0;
+  }
+  .caixa textarea { font-family: var(--cos); font-size: 0.92rem; line-height: 1.5; resize: vertical; }
+  .caixa .pista { color: var(--boira); }
+  .caixa .boto { width: auto; }
+  .reixa { display: grid; grid-template-columns: repeat(auto-fit, minmax(165px, 1fr)); gap: 12px; }
+  .resultat { font-size: 0.9rem; color: var(--boira); }
+  .resultat.be { color: var(--cobrat); }
+  .resultat.mal { color: var(--pendent); }
+
+  .taula-caixa { overflow-x: auto; border: 1px solid var(--vora); border-radius: 12px; background: var(--nit-2); }
+  table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--vora); vertical-align: top; }
+  th { font-family: var(--condensada); font-weight: 600; font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--boira); white-space: nowrap; }
+  tbody tr:last-child td { border-bottom: none; }
+  .nums { font-weight: 600; font-variant-numeric: tabular-nums; color: var(--gel); }
+  .correu { word-break: break-word; min-width: 150px; }
+  .xifra { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .pastilla {
+    display: inline-block; font-family: var(--condensada); font-weight: 600; font-size: 0.78rem;
+    letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 10px; border-radius: 999px; white-space: nowrap;
+  }
+  .pastilla-pagat { color: var(--cobrat); border: 1px solid var(--cobrat); background: rgba(79,192,141,0.1); }
+  .pastilla-pendent { color: var(--pendent); border: 1px solid var(--pendent); background: rgba(227,167,66,0.1); }
+  .pastilla-correu { color: var(--gel); border: 1px solid var(--gel-fosc); background: rgba(169,194,234,0.09); }
+  .pastilla-enviat { color: var(--cobrat); border: 1px solid var(--cobrat); background: rgba(79,192,141,0.1); }
+  .compte {
+    font-family: var(--condensada); font-weight: 700; font-size: 0.85rem; letter-spacing: 0;
+    background: var(--gel); color: var(--nit); border-radius: 999px; padding: 1px 10px; margin-left: 8px;
+  }
+  .compte[data-zero="true"] { background: var(--vora); color: var(--boira); }
+  .caixa-cap { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .mini {
+    font-family: var(--cos); font-size: 0.82rem; cursor: pointer; background: transparent;
+    border: 1px solid var(--vora); border-radius: 7px; padding: 5px 10px; color: var(--blanc); white-space: nowrap;
+  }
+  .mini:hover { border-color: var(--gel); color: var(--gel); }
+  .mini.perill:hover { border-color: var(--roig); color: var(--roig); }
+  .cel-accions { display: flex; gap: 6px; flex-wrap: wrap; }
+  .buit { padding: 26px 16px; text-align: center; color: var(--boira); font-size: 0.92rem; }
+
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<header class="heroi">
+  <div class="heroi-fons" aria-hidden="true"></div>
+  <div class="heroi-vel" aria-hidden="true"></div>
+  <div class="heroi-dins gutter centre">
+    <p class="sobretitol">1.500 números a la venda</p>
+    <h1><span class="t-tombola">Tómbola</span><span class="t-dhf">DHF</span></h1>
+    <p class="data">20–21 novembre 2026</p>
+    <div class="preu-bitllet">
+      <span class="preu-xifra" data-preu-euros>5 €</span>
+      <span class="preu-tall"></span>
+      <span class="preu-mot">número</span>
+    </div>
+    <p class="plom">Tria quants números vols, paga amb Revolut o Bizum i t'assignem els teus números del sorteig. Els premis els posen els comerços que ens fan costat.</p>
+  </div>
+</header>
+
+<main class="gutter centre pila" style="gap: 44px; padding-block: 8px 56px;">
+
+  <section class="bitllet" aria-labelledby="titolBitllet">
+    <div class="bitllet-banda">
+      <span id="titolBitllet">La teva comanda</span>
+      <span data-preu-cadascun>5,00 € c/u</span>
+    </div>
+
+    <!-- 1. la comanda -->
+    <div class="bitllet-cos" id="zonaPedido">
+      <div class="camp">
+        <label for="email">El teu correu electrònic</label>
+        <input type="email" id="email" name="email" placeholder="nom@correu.com" autocomplete="email" inputmode="email" spellcheck="false">
+        <span class="pista">Aquí t'enviem els números que et toquin.</span>
+      </div>
+
+      <div class="camp">
+        <label for="cantidad">Quants números vols?</label>
+        <div class="comptador">
+          <button type="button" class="pas" id="menos" aria-label="Treure un número">−</button>
+          <input type="number" id="cantidad" name="cantidad" value="1" min="1" max="20" step="1" inputmode="numeric">
+          <button type="button" class="pas" id="mas" aria-label="Afegir un número">+</button>
+          <div class="dreceres" id="atajos">
+            <button type="button" class="drecera" data-n="1">1</button>
+            <button type="button" class="drecera" data-n="2">2</button>
+            <button type="button" class="drecera" data-n="5">5</button>
+            <button type="button" class="drecera" data-n="10">10</button>
+          </div>
+        </div>
+        <span class="pista">Màxim 20 per comanda. Si en vols més, escriu-nos.</span>
+      </div>
+
+      <div class="troquel"></div>
+
+      <div class="total">
+        <div>
+          <p class="total-mot">Total a pagar</p>
+          <p class="total-xifra" id="importe">5,00 €</p>
+          <p class="total-detall" id="desglose">1 número × 5,00 €</p>
+        </div>
+        <p class="anotacio">
+          <svg class="fletxa" viewBox="0 0 80 50" aria-hidden="true"><path d="M6 8 C 32 4, 62 12, 71 37" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M63 31 L72 39 L61 42" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="ma">3 números,<br>3 oportunitats</span>
+        </p>
+      </div>
+
+      <p class="error" id="errorPedido" hidden></p>
+      <button type="button" class="boto" id="generar">Continua al pagament</button>
+    </div>
+
+    <!-- 2. el pagament -->
+    <div class="bitllet-cos resguard" id="zonaResguardo" hidden>
+      <button type="button" class="enrere" id="enrere">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M14.5 5.5 L8 12 l6.5 6.5" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Tornar enrere
+      </button>
+      <div>
+        <p class="total-mot">Paga la comanda</p>
+        <h2>Resguard de la comanda</h2>
+      </div>
+
+      <div class="dada">
+        <div class="dada-text">
+          <span class="dada-clau">Import exacte</span>
+          <span class="dada-valor" id="resImporte">5,00 €</span>
+        </div>
+        <button type="button" class="mini" data-copiar="resImporte">Copia</button>
+      </div>
+
+      <div class="dada">
+        <div class="dada-text">
+          <span class="dada-clau">Concepte del pagament</span>
+          <span class="dada-valor ref" id="resRef">TOMBOLA-000000</span>
+        </div>
+        <button type="button" class="mini" data-copiar="resRef">Copia</button>
+      </div>
+
+      <span class="etiqueta-grup">Per on pagues?</span>
+      <div class="pagaments" id="pagaments"></div>
+
+      <ol class="passos">
+        <li><strong>Tria per on pagues</strong><span>Una de les tres opcions de dalt.</span></li>
+        <li><strong>Fes el pagament</strong><span>Per l'import exacte i, si l'app t'ho deixa, posant-hi el concepte.</span></li>
+        <li><strong>Torna aquí i prem "Ja he pagat"</strong><span>Així ens arriba la comanda i la podem comprovar.</span></li>
+      </ol>
+
+      <p class="error" id="errorPagat" hidden></p>
+      <div class="accions">
+        <button type="button" class="boto" id="jaPagat">Ja he pagat</button>
+        <button type="button" class="boto-pla" id="otroPedido">Fer una altra comanda</button>
+      </div>
+      <p class="pista" id="estadoCopia" role="status" aria-live="polite"></p>
+    </div>
+
+    <!-- 3. rebuda -->
+    <div class="bitllet-cos resguard" id="zonaFet" hidden>
+      <div>
+        <p class="total-mot">Comanda rebuda</p>
+        <h2>Ja la tenim</h2>
+      </div>
+      <p class="pista">La teva comanda ens ha arribat amb el concepte <strong id="fetRef">—</strong>. Comprovem els pagaments un per un i, en les pròximes 24 hores, reps un correu a <strong id="fetCorreu">el teu correu</strong> amb els números que t'han tocat.</p>
+
+      <textarea id="fetResum" class="resum-caixa" rows="7" readonly spellcheck="false"></textarea>
+
+      <p class="pista">No cal que ens enviïs res més. Si vols, pots guardar-te aquest resum o avisar-nos igualment:</p>
+      <div class="accions">
+        <button type="button" class="boto-pla" id="copiarResum">Copia el resum</button>
+        <a class="boto-pla" id="enllacWhatsapp2" href="#" target="_blank" rel="noopener" style="text-decoration:none;">Avisar per WhatsApp</a>
+      </div>
+
+      <div class="troquel"></div>
+
+      <div class="accions">
+        <button type="button" class="boto-pla" id="tornar">Fer una altra comanda</button>
+      </div>
+      <p class="pista" id="estadoCopia2" role="status" aria-live="polite"></p>
+    </div>
+  </section>
+
+  <section class="seccio">
+    <h2 class="titol-seccio">Com es reparteixen els números</h2>
+    <div class="barra-tram" role="img" aria-label="De l'1 al 700 es venen per internet; del 701 al 1500, en mà.">
+      <div class="tram tram-online" style="flex: 700 0 0;"><span>1 – 700<br>internet</span></div>
+      <div class="tram tram-ma" style="flex: 800 0 0;"><span>701 – 1.500<br>en mà</span></div>
+    </div>
+    <div class="notes">
+      <p class="nota"><span class="punt punt-online"></span><span>Les comandes d'aquesta pàgina reben números de l'<strong>1 al 700</strong>, per ordre d'arribada. Si en demanes 3, et toquen 3 números diferents.</span></p>
+      <p class="nota"><span class="punt punt-ma"></span><span>Del <strong>701 al 1.500</strong> es reserven per a la venda en mà, en paper.</span></p>
+    </div>
+    <p class="anotacio-ma">
+      <svg class="fletxa" viewBox="0 0 80 50" aria-hidden="true"><path d="M8 42 C 24 16, 50 6, 72 10" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M63 4 L73 10 L64 17" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span class="ma">cada número només<br>es dóna una vegada</span>
+    </p>
+  </section>
+
+  <section class="seccio">
+    <p class="legal">El teu correu només s'utilitza per enviar-te els números i avisar-te del resultat. Els números queden confirmats quan comprovem el pagament. La tómbola es fa el 20 i 21 de novembre de 2026.</p>
+  </section>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  var CONFIG = {
+    precio: 5,
+    maxPorPedido: 20,
+    pagament: {
+      revolut: {
+        etiqueta: "Revolut", via: "Revolut", curt: "Revolut (Maria)",
+        nom: "Maria Gessti", enllac: "https://revolut.me/mariagessti"
+      },
+      bizum_maria: {
+        etiqueta: "Bizum · Maria", via: "Bizum", curt: "Bizum (Maria)",
+        nom: "Maria Gessti", telefon: "+34 697 78 12 97",
+        nota: "Des de l'app del teu banc, a Bizum."
+      },
+      bizum_gabi: {
+        etiqueta: "Bizum · Gabi", via: "Bizum", curt: "Bizum (Gabi)",
+        nom: "Gabriela Pérez", telefon: "+34 637 67 00 30",
+        nota: "Des de l'app del teu banc, a Bizum."
+      }
+    },
+    whatsapp: "34697781297",
+    whatsappVisible: "+34 697 78 12 97"
+  };
+
+  var METODE_PER_DEFECTE = Object.keys(CONFIG.pagament)[0];
+  var eurFmt = new Intl.NumberFormat("ca-ES", { style: "currency", currency: "EUR" });
+  var eur = function (n) { return eurFmt.format(n); };
+  var $ = function (id) { return document.getElementById(id); };
+  var RE_EMAIL = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
+
+  var elEmail = $("email"), elCantidad = $("cantidad"), elImporte = $("importe"),
+      elDesglose = $("desglose"), elError = $("errorPedido"),
+      zonaPedido = $("zonaPedido"), zonaResguardo = $("zonaResguardo");
+  var pedidoActual = null;
+
+  document.querySelectorAll("[data-preu-euros]").forEach(function (n) { n.textContent = CONFIG.precio + " €"; });
+  document.querySelectorAll("[data-preu-cadascun]").forEach(function (n) { n.textContent = eur(CONFIG.precio) + " c/u"; });
+
+  /* ---------- quantitat i total ---------- */
+
+  function cantidadActual() {
+    var n = parseInt(elCantidad.value, 10);
+    if (!isFinite(n) || n < 1) n = 1;
+    if (n > CONFIG.maxPorPedido) n = CONFIG.maxPorPedido;
+    return n;
+  }
+
+  function pintarTotal() {
+    var n = cantidadActual();
+    elImporte.textContent = eur(n * CONFIG.precio);
+    elDesglose.textContent = n + (n === 1 ? " número × " : " números × ") + eur(CONFIG.precio);
+    document.querySelectorAll("#atajos .drecera").forEach(function (b) {
+      b.setAttribute("aria-pressed", String(parseInt(b.dataset.n, 10) === n));
+    });
+  }
+
+  elCantidad.addEventListener("input", pintarTotal);
+  elCantidad.addEventListener("change", function () { elCantidad.value = cantidadActual(); pintarTotal(); });
+  $("menos").addEventListener("click", function () { elCantidad.value = Math.max(1, cantidadActual() - 1); pintarTotal(); });
+  $("mas").addEventListener("click", function () { elCantidad.value = Math.min(CONFIG.maxPorPedido, cantidadActual() + 1); pintarTotal(); });
+  $("atajos").addEventListener("click", function (e) {
+    var b = e.target.closest(".drecera");
+    if (!b) return;
+    elCantidad.value = b.dataset.n;
+    pintarTotal();
+  });
+  pintarTotal();
+
+  /* ---------- parlar amb el servidor ---------- */
+
+  async function aviServidor(accio, dades) {
+    var resposta = await fetch("/api/comanda", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(Object.assign({ accio: accio }, dades))
+    });
+    var cos = null;
+    try { cos = await resposta.json(); } catch (e) {}
+    if (!resposta.ok || !cos || !cos.ok) {
+      var err = new Error((cos && cos.error) || "error_servidor");
+      err.codi = (cos && cos.error) || "error_servidor";
+      throw err;
+    }
+    return cos;
+  }
+
+  function textError(codi) {
+    if (codi === "correu_invalid") return "Aquest correu no sembla vàlid.";
+    if (codi === "quantitat_invalida") return "La quantitat ha de ser entre 1 i " + CONFIG.maxPorPedido + ".";
+    if (codi === "massa_comandes") return "Has obert massa comandes avui amb aquest correu. Escriu-nos i ho mirem.";
+    if (codi === "comanda_no_trobada") return "No trobem aquesta comanda. Torna a començar, si us plau.";
+    return "Ara mateix no hi podem connectar. Comprova la connexió i torna-ho a provar.";
+  }
+
+  /* ---------- resum ---------- */
+
+  function resumen(pedido) {
+    var m = CONFIG.pagament[pedido.metode] || CONFIG.pagament[METODE_PER_DEFECTE];
+    return [
+      "Comanda per a la Tómbola DHF",
+      "Concepte: " + pedido.ref,
+      "Correu: " + pedido.email,
+      "Números: " + pedido.cantidad,
+      "Import: " + eur(pedido.cantidad * CONFIG.precio),
+      "Pagament: " + m.via + " a " + m.nom + " (" + (m.telefon || m.enllac) + ")"
+    ].join("\n");
+  }
+
+  /* ---------- targetes de pagament ---------- */
+
+  function canviarMetode(id) {
+    if (!pedidoActual || !CONFIG.pagament[id] || pedidoActual.metode === id) return;
+    pedidoActual.metode = id;
+    desar();
+    omplirResguard(pedidoActual);
+  }
+
+  function pintarPagaments(triat) {
+    var cont = $("pagaments");
+    cont.textContent = "";
+    Object.keys(CONFIG.pagament).forEach(function (id) {
+      var m = CONFIG.pagament[id];
+      var card = document.createElement("div");
+      card.className = "pagament" + (id === triat ? " es-triat" : "");
+
+      var dalt = document.createElement("div");
+      dalt.className = "pagament-dalt";
+      var clau = document.createElement("span");
+      clau.className = "dada-clau";
+      clau.textContent = m.via;
+      dalt.appendChild(clau);
+      if (id === triat) {
+        var marca = document.createElement("span");
+        marca.className = "triat";
+        marca.textContent = "El teu";
+        dalt.appendChild(marca);
+      } else {
+        var tria = document.createElement("button");
+        tria.type = "button";
+        tria.className = "mini";
+        tria.textContent = "Triar";
+        tria.addEventListener("click", function () { canviarMetode(id); });
+        dalt.appendChild(tria);
+      }
+      card.appendChild(dalt);
+
+      var qui = document.createElement("p");
+      qui.className = "pagament-qui";
+      qui.textContent = m.nom;
+      card.appendChild(qui);
+
+      if (m.enllac) {
+        var a = document.createElement("a");
+        a.className = "boto";
+        a.href = m.enllac;
+        a.target = "_blank";
+        a.rel = "noopener";
+        a.textContent = "Obrir " + m.via;
+        a.addEventListener("click", function () { canviarMetode(id); });
+        card.appendChild(a);
+      }
+
+      var desti = document.createElement("p");
+      desti.className = m.telefon ? "dada-valor" : "pagament-lletra";
+      desti.textContent = m.telefon || m.enllac.replace(/^https?:\/\//, "");
+      card.appendChild(desti);
+
+      if (m.nota) {
+        var nota = document.createElement("p");
+        nota.className = "pagament-lletra";
+        nota.textContent = m.nota;
+        card.appendChild(nota);
+      }
+
+      var boto = document.createElement("button");
+      boto.type = "button";
+      boto.className = "mini";
+      boto.textContent = m.telefon ? "Copia el número" : "Copia l'enllaç";
+      boto.addEventListener("click", function () {
+        copiar(desti.textContent);
+        canviarMetode(id);
+      });
+      card.appendChild(boto);
+
+      cont.appendChild(card);
+    });
+  }
+
+  /* ---------- pantalles ---------- */
+
+  function desar() {
+    try { localStorage.setItem("comandaTombolaDHF", JSON.stringify(pedidoActual)); } catch (e) {}
+  }
+
+  function omplirResguard(pedido) {
+    $("resImporte").textContent = eur(pedido.cantidad * CONFIG.precio);
+    $("resRef").textContent = pedido.ref;
+    pintarPagaments(pedido.metode);
+  }
+
+  function mostrarResguardo(pedido) {
+    pedidoActual = pedido;
+    omplirResguard(pedido);
+    $("errorPagat").hidden = true;
+    zonaPedido.hidden = true;
+    $("zonaFet").hidden = true;
+    zonaResguardo.hidden = false;
+  }
+
+  function mostrarFet(pedido) {
+    pedidoActual = pedido;
+    $("fetRef").textContent = pedido.ref;
+    $("fetCorreu").textContent = pedido.email;
+    $("fetResum").value = resumen(pedido);
+    $("enllacWhatsapp2").href = "https://wa.me/" + CONFIG.whatsapp + "?text=" + encodeURIComponent(resumen(pedido));
+    zonaPedido.hidden = true;
+    zonaResguardo.hidden = true;
+    $("zonaFet").hidden = false;
+  }
+
+  function tornarAlFormulari(netejar) {
+    try { localStorage.removeItem("comandaTombolaDHF"); } catch (e) {}
+    pedidoActual = null;
+    zonaResguardo.hidden = true;
+    $("zonaFet").hidden = true;
+    zonaPedido.hidden = false;
+    $("estadoCopia").textContent = "";
+    if (netejar) {
+      elEmail.value = "";
+      elCantidad.value = "1";
+      pintarTotal();
+      elEmail.focus();
+    } else {
+      zonaPedido.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }
+
+  /* ---------- accions ---------- */
+
+  $("generar").addEventListener("click", async function () {
+    var email = elEmail.value.trim();
+    if (!RE_EMAIL.test(email)) {
+      elError.textContent = "Escriu un correu vàlid per poder enviar-te els números.";
+      elError.hidden = false;
+      elEmail.focus();
+      return;
+    }
+    elError.hidden = true;
+    var boto = this;
+    boto.disabled = true;
+    var textOriginal = boto.textContent;
+    boto.textContent = "Un moment…";
+    try {
+      var r = await aviServidor("inicia", {
+        email: email,
+        quantitat: cantidadActual(),
+        metode: METODE_PER_DEFECTE
+      });
+      var pedido = { email: email, cantidad: cantidadActual(), ref: r.ref, metode: METODE_PER_DEFECTE };
+      pedidoActual = pedido;
+      desar();
+      mostrarResguardo(pedido);
+      zonaResguardo.scrollIntoView({ behavior: "smooth", block: "start" });
+    } catch (e) {
+      elError.textContent = textError(e.codi);
+      elError.hidden = false;
+    } finally {
+      boto.disabled = false;
+      boto.textContent = textOriginal;
+    }
+  });
+
+  $("jaPagat").addEventListener("click", async function () {
+    if (!pedidoActual) return;
+    var boto = this;
+    boto.disabled = true;
+    var textOriginal = boto.textContent;
+    boto.textContent = "Enviant…";
+    $("errorPagat").hidden = true;
+    try {
+      await aviServidor("he-pagat", { ref: pedidoActual.ref, metode: pedidoActual.metode });
+      pedidoActual.fet = true;
+      desar();
+      mostrarFet(pedidoActual);
+      $("zonaFet").scrollIntoView({ behavior: "smooth", block: "start" });
+    } catch (e) {
+      $("errorPagat").textContent = textError(e.codi);
+      $("errorPagat").hidden = false;
+    } finally {
+      boto.disabled = false;
+      boto.textContent = textOriginal;
+    }
+  });
+
+  $("enrere").addEventListener("click", function () { tornarAlFormulari(false); });
+  $("otroPedido").addEventListener("click", function () { tornarAlFormulari(true); });
+  $("tornar").addEventListener("click", function () { tornarAlFormulari(true); });
+
+  /* ---------- copiar ---------- */
+
+  function avisarCopia(txt) {
+    ["estadoCopia", "estadoCopia2"].forEach(function (id) {
+      var n = $(id);
+      if (n) n.textContent = txt;
+    });
+    setTimeout(function () {
+      ["estadoCopia", "estadoCopia2"].forEach(function (id) {
+        var n = $(id);
+        if (n) n.textContent = "";
+      });
+    }, 3000);
+  }
+
+  function copiar(texto) {
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(texto).then(
+          function () { avisarCopia("Copiat."); },
+          function () { avisarCopia("No s'ha pogut copiar; selecciona'l a mà."); }
+        );
+      } else {
+        avisarCopia("No s'ha pogut copiar; selecciona'l a mà.");
+      }
+    } catch (e) {
+      avisarCopia("No s'ha pogut copiar; selecciona'l a mà.");
+    }
+  }
+
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-copiar]");
+    if (!b) return;
+    copiar($(b.dataset.copiar).textContent);
+  });
+
+  $("copiarResum").addEventListener("click", function () {
+    var caixa = $("fetResum");
+    if (!caixa.value) return;
+    try { caixa.select(); } catch (e) {}
+    copiar(caixa.value);
+  });
+
+  /* ---------- recuperar una comanda a mig fer ---------- */
+
+  try {
+    var guardado = JSON.parse(localStorage.getItem("comandaTombolaDHF") || "null");
+    if (guardado && RE_EMAIL.test(guardado.email || "") && guardado.ref) {
+      elEmail.value = guardado.email;
+      elCantidad.value = guardado.cantidad;
+      if (!CONFIG.pagament[guardado.metode]) guardado.metode = METODE_PER_DEFECTE;
+      pintarTotal();
+      if (guardado.fet) mostrarFet(guardado); else mostrarResguardo(guardado);
+    }
+  } catch (e) {}
+})();
+</script>
+
+</body>
+</html>
