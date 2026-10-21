@@ -1,0 +1,833 @@
+<!doctype html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Panell · Tómbola DHF</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&family=Bodoni+Moda:ital,opsz,wght@1,6..96,700..900&family=Caveat:wght@500;600&display=swap">
+<style>
+  :root { color-scheme: light; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+  body { margin: 0; }
+  img { max-width: 100%; }
+  [hidden] { display: none !important; }
+</style>
+<style>
+  /* Layout: nit del camp d'hoquei — hèroi de nit, el bitllet blau com a
+     formulari, el repartiment de números i el panell d'organització al peu. Tema únic fosc. */
+  :root {
+    --nit: #0B131F;
+    --nit-2: #111C2A;
+    --vora: #22324A;
+    --gel: #A9C2EA;
+    --gel-pal: #DCE7F8;
+    --gel-fosc: #6E8CC4;
+    --rei: #2B3EA0;
+    --blanc: #F3F6FB;
+    --boira: #93A5BE;
+    --cobrat: #4FC08D;
+    --pendent: #E3A742;
+    --roig: #FF8A80;
+
+    --titol: "Bodoni Moda", "Didot", "Playfair Display", Georgia, serif;
+    --condensada: "Barlow Condensed", "Arial Narrow", Helvetica, sans-serif;
+    --cos: "Barlow", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    --ma: "Caveat", "Segoe Script", cursive;
+    color-scheme: dark;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+
+  body {
+    background: var(--nit);
+    color: var(--blanc);
+    font-family: var(--cos);
+    font-size: 16px;
+    line-height: 1.55;
+    padding: 0;
+    -webkit-text-size-adjust: 100%;
+  }
+  .gutter {
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  .centre { max-width: 720px; margin: 0 auto; }
+  .ample { max-width: 1040px; margin: 0 auto; }
+  .pila { display: flex; flex-direction: column; }
+
+  h1, h2, h3 { margin: 0; font-weight: 400; text-wrap: balance; }
+  p { margin: 0; }
+  a { color: var(--gel); }
+
+  .sobretitol {
+    font-family: var(--condensada); font-weight: 600; font-size: 0.9rem;
+    letter-spacing: 0.22em; text-transform: uppercase; color: var(--gel);
+  }
+  .plom { color: var(--boira); max-width: 56ch; }
+  .ma { font-family: var(--ma); font-size: 1.35rem; line-height: 1.25; color: var(--gel); }
+  .fletxa { width: 56px; height: 36px; color: var(--gel); flex: none; }
+
+  /* ---------- hèroi ---------- */
+  .heroi { position: relative; overflow: hidden; padding-block: 56px 48px; }
+  .heroi-fons {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(125% 95% at 50% 0%, rgba(43,62,160,0.42) 0%, rgba(11,19,31,0) 62%),
+      radial-gradient(80% 65% at 88% 18%, rgba(169,194,234,0.16) 0%, rgba(11,19,31,0) 72%),
+      repeating-linear-gradient(104deg, rgba(169,194,234,0.05) 0px, rgba(169,194,234,0.05) 1px, transparent 1px, transparent 48px);
+  }
+  .heroi-vel {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(11,19,31,0.72) 0%, rgba(11,19,31,0.58) 45%, var(--nit) 100%);
+  }
+  .heroi-dins { position: relative; display: flex; flex-direction: column; gap: 22px; }
+
+  h1 { font-family: var(--titol); font-style: italic; font-weight: 900; text-transform: uppercase; line-height: 0.84; letter-spacing: -0.015em; }
+  h1 span { display: block; }
+  .t-tombola { font-size: clamp(3.1rem, 15.5vw, 6.4rem); }
+  .t-dhf { font-size: clamp(3.4rem, 17vw, 7rem); margin-left: 0.06em; }
+  .data {
+    font-family: var(--condensada); font-weight: 700; font-size: clamp(1.1rem, 4.6vw, 1.6rem);
+    letter-spacing: 0.06em; text-transform: uppercase;
+  }
+
+  .preu-bitllet {
+    align-self: flex-start; display: flex; align-items: stretch; gap: 0;
+    background: var(--gel); color: var(--nit); border-radius: 13px; overflow: hidden;
+    box-shadow: 0 14px 30px rgba(0,0,0,0.42);
+  }
+  .preu-xifra {
+    font-family: var(--titol); font-style: italic; font-weight: 700;
+    font-size: 2.3rem; line-height: 1; padding: 13px 18px 15px;
+  }
+  .preu-tall { border-left: 2px dashed rgba(11,19,31,0.42); }
+  .preu-mot {
+    font-family: var(--condensada); font-weight: 700; font-size: 0.78rem;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    display: grid; place-items: center; padding: 0 14px;
+  }
+
+  /* ---------- el bitllet (formulari) ---------- */
+  .bitllet {
+    --txt: #0B131F; --suau: #4A5B74; --vora-loc: #94ACD6; --camp: #FFFFFF;
+    position: relative; color: var(--txt);
+    background: linear-gradient(165deg, var(--gel-pal) 0%, var(--gel) 100%);
+    border-radius: 16px; box-shadow: 0 18px 44px rgba(0,0,0,0.45);
+  }
+  .bitllet-banda {
+    display: flex; justify-content: space-between; align-items: baseline; gap: 12px;
+    padding: 13px 20px; border-bottom: 1px solid rgba(11,19,31,0.14);
+    font-family: var(--condensada); font-weight: 700; font-size: 0.82rem;
+    letter-spacing: 0.16em; text-transform: uppercase;
+  }
+  .bitllet-cos { padding: 22px 20px; display: flex; flex-direction: column; gap: 20px; }
+
+  .camp { display: flex; flex-direction: column; gap: 7px; }
+  .camp label { font-weight: 600; font-size: 0.95rem; }
+  .pista { font-size: 0.84rem; color: var(--suau); }
+  .bitllet input, .bitllet select, .bitllet textarea {
+    font-family: var(--cos); font-size: 1rem; color: var(--txt); background: var(--camp);
+    border: 1px solid var(--vora-loc); border-radius: 9px; padding: 11px 13px; width: 100%; min-width: 0;
+  }
+  .bitllet input::placeholder { color: #8395AE; }
+  input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visible {
+    outline: 2px solid var(--rei); outline-offset: 2px;
+  }
+
+  .comptador { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+  .pas {
+    width: 44px; height: 44px; flex: none; border-radius: 9px; cursor: pointer;
+    border: 1px solid var(--vora-loc); background: var(--camp); color: var(--txt);
+    font-size: 1.35rem; line-height: 1;
+  }
+  .pas:hover { border-color: var(--rei); color: var(--rei); }
+  #cantidad { width: 88px; text-align: center; font-weight: 600; font-size: 1.1rem; font-variant-numeric: tabular-nums; }
+  .dreceres { display: flex; gap: 6px; flex-wrap: wrap; }
+  .drecera {
+    font-family: var(--condensada); font-weight: 600; font-size: 0.95rem; letter-spacing: 0.04em;
+    padding: 8px 13px; cursor: pointer; border: 1px solid var(--vora-loc);
+    border-radius: 999px; background: transparent; color: var(--suau);
+  }
+  .drecera:hover { border-color: var(--rei); color: var(--rei); }
+  .drecera[aria-pressed="true"] { background: var(--rei); border-color: var(--rei); color: #FFF; }
+
+
+  .etiqueta-grup { font-weight: 600; font-size: 0.95rem; }
+  .troquel { position: relative; height: 1px; border-top: 2px dashed rgba(11,19,31,0.3); margin: 0 -20px; }
+  .troquel::before, .troquel::after {
+    content: ""; position: absolute; top: -10px; width: 20px; height: 20px;
+    border-radius: 50%; background: var(--nit);
+  }
+  .troquel::before { left: -10px; }
+  .troquel::after { right: -10px; }
+
+  .total { display: flex; align-items: flex-end; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+  .total-mot { font-family: var(--condensada); font-weight: 600; font-size: 0.85rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--suau); }
+  .total-xifra { font-family: var(--titol); font-style: italic; font-weight: 900; font-size: clamp(2.3rem, 10vw, 3.1rem); line-height: 0.95; font-variant-numeric: tabular-nums; }
+  .total-detall { font-size: 0.85rem; color: var(--suau); }
+  .anotacio { display: flex; align-items: center; gap: 6px; }
+  .anotacio .ma { color: var(--rei); font-size: 1.2rem; }
+  .anotacio .fletxa { color: var(--rei); width: 44px; height: 30px; transform: scaleY(-1); }
+
+  .boto {
+    font-family: var(--condensada); font-weight: 700; font-size: 1.15rem; letter-spacing: 0.08em;
+    text-transform: uppercase; cursor: pointer; background: var(--rei); color: #FFF;
+    border: 1px solid var(--rei); border-radius: 10px; padding: 14px 20px; width: 100%;
+    text-align: center; text-decoration: none;
+  }
+  a.boto { display: inline-block; }
+  .boto:hover { background: #22328A; }
+  .boto-contorn { background: transparent; color: #0B131F; border-color: #0B131F; }
+  .boto-contorn:hover { background: rgba(11,19,31,0.08); color: #0B131F; }
+  .boto-pla {
+    font-family: var(--cos); font-weight: 600; font-size: 0.9rem; cursor: pointer;
+    background: transparent; color: inherit; border: 1px solid currentColor;
+    border-radius: 9px; padding: 10px 15px; opacity: 0.82;
+  }
+  .boto-pla:hover { opacity: 1; }
+  .error { color: #A8201A; font-size: 0.88rem; font-weight: 600; }
+
+  /* ---------- resguard ---------- */
+  .resguard { display: flex; flex-direction: column; gap: 18px; }
+  .resguard h2 { font-family: var(--titol); font-style: italic; font-weight: 700; font-size: 1.7rem; }
+  .dada {
+    display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;
+    padding: 12px 14px; background: rgba(255,255,255,0.58); border: 1px solid var(--vora-loc); border-radius: 10px;
+  }
+  .dada-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+  .dada-clau { font-family: var(--condensada); font-weight: 600; font-size: 0.78rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--suau); }
+  .dada-valor { font-size: 1.1rem; font-weight: 600; font-variant-numeric: tabular-nums; word-break: break-word; }
+  .dada-valor.ref { font-family: var(--condensada); letter-spacing: 0.08em; color: var(--rei); }
+  .passos { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 13px; counter-reset: pas; }
+  .passos li { display: grid; grid-template-columns: 28px 1fr; gap: 12px; align-items: start; }
+  .passos li::before {
+    counter-increment: pas; content: counter(pas);
+    font-family: var(--condensada); font-weight: 700; font-size: 0.9rem;
+    width: 26px; height: 26px; display: grid; place-items: center;
+    border: 1.5px solid var(--rei); color: var(--rei); border-radius: 50%;
+  }
+  .enrere {
+    align-self: flex-start; display: inline-flex; align-items: center; gap: 7px;
+    background: rgba(255,255,255,0.45); border: 1px solid var(--vora-loc); border-radius: 999px;
+    padding: 8px 16px 8px 12px; cursor: pointer; color: #0B131F;
+    font-family: var(--cos); font-weight: 600; font-size: 0.92rem;
+  }
+  .enrere:hover { border-color: var(--rei); color: var(--rei); background: #FFF; }
+  .enrere svg { width: 16px; height: 16px; flex: none; }
+
+  .bitllet .mini { color: #0B131F; border-color: var(--vora-loc); align-self: flex-start; }
+  .bitllet .mini:hover { border-color: var(--rei); color: var(--rei); }
+
+  .pagaments { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  @media (max-width: 620px) { .pagaments { grid-template-columns: 1fr; } }
+  .pagament {
+    display: flex; flex-direction: column; gap: 7px; padding: 12px;
+    background: rgba(255,255,255,0.58); border: 1px solid var(--vora-loc); border-radius: 11px;
+  }
+  .pagament .boto { font-size: 0.92rem; letter-spacing: 0.04em; padding: 10px 8px; }
+  .pagament .dada-valor { font-size: 0.95rem; }
+  .pagament .mini { font-size: 0.76rem; padding: 4px 9px; }
+  .pagament.es-triat { border: 2px solid var(--rei); background: rgba(255,255,255,0.82); }
+  .pagament-dalt { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .triat {
+    font-family: var(--condensada); font-weight: 700; font-size: 0.72rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: #FFF; background: var(--rei); border-radius: 999px; padding: 2px 9px;
+  }
+  .pagament-qui { font-weight: 600; font-size: 0.95rem; }
+  .pagament-lletra { font-size: 0.82rem; color: var(--suau); overflow-wrap: break-word; }
+  .contacte { font-size: 0.98rem; white-space: nowrap; }
+  .resultat-registre {
+    font-size: 0.9rem; font-weight: 600; color: var(--rei);
+    background: rgba(43,62,160,0.08); border: 1px solid var(--rei);
+    border-radius: 9px; padding: 9px 12px;
+  }
+  .resum-caixa {
+    font-family: var(--cos); font-size: 0.92rem; line-height: 1.6;
+    background: var(--camp); resize: vertical; min-height: 150px;
+  }
+
+  .passos strong, .passos span { grid-column: 2; }
+  .passos span { font-size: 0.9rem; color: var(--suau); }
+  .accions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .accions .boto { width: auto; }
+
+  /* ---------- seccions fosques ---------- */
+  .seccio { display: flex; flex-direction: column; gap: 18px; }
+  h2.titol-seccio { font-family: var(--titol); font-style: italic; font-weight: 700; font-size: clamp(1.8rem, 7vw, 2.6rem); text-transform: uppercase; line-height: 0.95; }
+  h3 { font-family: var(--condensada); font-weight: 700; font-size: 1.05rem; letter-spacing: 0.08em; text-transform: uppercase; }
+
+  .barra-tram { display: flex; height: 58px; border-radius: 11px; overflow: hidden; }
+  .tram { display: grid; place-items: center; text-align: center; padding: 0 8px; font-family: var(--condensada); font-weight: 600; font-size: 0.92rem; letter-spacing: 0.04em; text-transform: uppercase; }
+  .tram-online { background: var(--gel); color: var(--nit); }
+  .tram-ma { background: var(--nit-2); color: var(--boira); border: 1px solid var(--vora); border-left: none; }
+  .notes { display: grid; gap: 11px; }
+  .nota { font-size: 0.93rem; color: var(--boira); display: grid; grid-template-columns: 12px 1fr; gap: 11px; align-items: start; }
+  .nota strong { color: var(--blanc); font-weight: 600; }
+  .punt { width: 10px; height: 10px; border-radius: 3px; margin-top: 7px; }
+  .punt-online { background: var(--gel); }
+  .punt-ma { background: var(--nit-2); border: 1px solid var(--vora); }
+  .anotacio-ma { display: flex; align-items: flex-start; gap: 10px; padding-left: 4px; }
+  .anotacio-ma .fletxa { transform: rotate(8deg); }
+
+  .legal { font-size: 0.86rem; color: var(--boira); border-top: 1px solid var(--vora); padding-top: 18px; }
+
+  /* ---------- panell ---------- */
+  .panell { border-top: 1px solid var(--vora); padding-top: 34px; display: flex; flex-direction: column; gap: 20px; }
+  .marcadors { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 12px; }
+  .marcador { background: var(--nit-2); border: 1px solid var(--vora); border-radius: 11px; padding: 14px; display: flex; flex-direction: column; gap: 4px; }
+  .marcador-valor { font-family: var(--condensada); font-weight: 700; font-size: 1.6rem; line-height: 1.05; font-variant-numeric: tabular-nums; }
+  .marcador-clau { font-family: var(--condensada); font-weight: 600; font-size: 0.76rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--boira); }
+  .medidor { height: 5px; border-radius: 999px; background: var(--vora); overflow: hidden; margin-top: 5px; }
+  .medidor i { display: block; height: 100%; background: var(--gel); }
+
+  .caixa { background: var(--nit-2); border: 1px solid var(--vora); border-radius: 12px; padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+  .caixa input, .caixa select, .caixa textarea {
+    font-family: var(--cos); font-size: 1rem; color: var(--blanc); background: var(--nit);
+    border: 1px solid var(--vora); border-radius: 9px; padding: 11px 13px; width: 100%; min-width: 0;
+  }
+  .caixa textarea { font-family: var(--cos); font-size: 0.92rem; line-height: 1.5; resize: vertical; }
+  .caixa .pista { color: var(--boira); }
+  .caixa .boto { width: auto; }
+  .reixa { display: grid; grid-template-columns: repeat(auto-fit, minmax(165px, 1fr)); gap: 12px; }
+  .resultat { font-size: 0.9rem; color: var(--boira); }
+  .resultat.be { color: var(--cobrat); }
+  .resultat.mal { color: var(--pendent); }
+
+  .taula-caixa { overflow-x: auto; border: 1px solid var(--vora); border-radius: 12px; background: var(--nit-2); }
+  table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--vora); vertical-align: top; }
+  th { font-family: var(--condensada); font-weight: 600; font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--boira); white-space: nowrap; }
+  tbody tr:last-child td { border-bottom: none; }
+  .nums { font-weight: 600; font-variant-numeric: tabular-nums; color: var(--gel); }
+  .correu { word-break: break-word; min-width: 150px; }
+  .xifra { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .pastilla {
+    display: inline-block; font-family: var(--condensada); font-weight: 600; font-size: 0.78rem;
+    letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 10px; border-radius: 999px; white-space: nowrap;
+  }
+  .pastilla-pagat { color: var(--cobrat); border: 1px solid var(--cobrat); background: rgba(79,192,141,0.1); }
+  .pastilla-pendent { color: var(--pendent); border: 1px solid var(--pendent); background: rgba(227,167,66,0.1); }
+  .pastilla-correu { color: var(--gel); border: 1px solid var(--gel-fosc); background: rgba(169,194,234,0.09); }
+  .pastilla-enviat { color: var(--cobrat); border: 1px solid var(--cobrat); background: rgba(79,192,141,0.1); }
+  .compte {
+    font-family: var(--condensada); font-weight: 700; font-size: 0.85rem; letter-spacing: 0;
+    background: var(--gel); color: var(--nit); border-radius: 999px; padding: 1px 10px; margin-left: 8px;
+  }
+  .compte[data-zero="true"] { background: var(--vora); color: var(--boira); }
+  .caixa-cap { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .mini {
+    font-family: var(--cos); font-size: 0.82rem; cursor: pointer; background: transparent;
+    border: 1px solid var(--vora); border-radius: 7px; padding: 5px 10px; color: var(--blanc); white-space: nowrap;
+  }
+  .mini:hover { border-color: var(--gel); color: var(--gel); }
+  .mini.perill:hover { border-color: var(--roig); color: var(--roig); }
+  .cel-accions { display: flex; gap: 6px; flex-wrap: wrap; }
+  .buit { padding: 26px 16px; text-align: center; color: var(--boira); font-size: 0.92rem; }
+
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<main class="gutter ample pila" style="gap: 28px; padding-block: 40px 60px;">
+
+  <div>
+    <p class="sobretitol">Tómbola DHF</p>
+    <h2 class="titol-seccio">Panell d'organització</h2>
+  </div>
+
+  <!-- porta -->
+  <section class="caixa" id="porta" style="max-width: 420px;">
+    <h3>Contrasenya</h3>
+    <p class="pista">La que vau posar a Vercel com a <span class="nums">CLAU_PANELL</span>.</p>
+    <input type="password" id="clau" autocomplete="current-password" placeholder="Contrasenya del panell">
+    <div class="accions">
+      <button type="button" class="boto" id="entrar">Entrar</button>
+    </div>
+    <p class="resultat" id="avisClau" role="status" aria-live="polite"></p>
+  </section>
+
+  <!-- panell -->
+  <div id="panel" hidden class="pila" style="gap: 20px;">
+
+    <div class="marcadors">
+      <div class="marcador">
+        <span class="marcador-clau">Internet · 1–700</span>
+        <span class="marcador-valor" id="mOnline">—</span>
+        <div class="medidor"><i id="barraOnline" style="width:0%"></i></div>
+      </div>
+      <div class="marcador">
+        <span class="marcador-clau">En mà · 701–1500</span>
+        <span class="marcador-valor" id="mMano">—</span>
+        <div class="medidor"><i id="barraMano" style="width:0%"></i></div>
+      </div>
+      <div class="marcador">
+        <span class="marcador-clau">Cobrat</span>
+        <span class="marcador-valor" id="mCobrat">—</span>
+      </div>
+      <div class="marcador">
+        <span class="marcador-clau">Per comprovar</span>
+        <span class="marcador-valor" id="mPerComprovar">—</span>
+      </div>
+      <div class="marcador">
+        <span class="marcador-clau">Correus per enviar</span>
+        <span class="marcador-valor" id="mCorreus">—</span>
+      </div>
+    </div>
+
+    <div class="caixa">
+      <div class="caixa-cap">
+        <h3>Comandes per comprovar <span class="compte" id="compPendents" data-zero="true">0</span></h3>
+        <div class="accions">
+          <button type="button" class="boto-pla" id="refresca">Actualitza</button>
+        </div>
+      </div>
+      <p class="pista">Han premut "Ja he pagat" i la comanda us ha arribat sola. Mira si el pagament hi és i confirma-la: s'assignen els números i el correu queda a la cua.</p>
+      <div class="taula-caixa">
+        <table>
+          <thead>
+            <tr><th>Concepte</th><th>Correu</th><th>Quants</th><th>Import</th><th>Pagament</th><th>Rebuda</th><th></th></tr>
+          </thead>
+          <tbody id="cosPendents">
+            <tr><td colspan="7" class="buit">Carregant…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="resultat" id="avisPendents" role="status" aria-live="polite"></p>
+    </div>
+
+    <div class="caixa">
+      <h3>Venda en mà o alta manual</h3>
+      <div class="reixa">
+        <div class="camp">
+          <label for="aEmail">Correu</label>
+          <input type="email" id="aEmail" placeholder="nom@correu.com" spellcheck="false">
+        </div>
+        <div class="camp">
+          <label for="aQuantitat">Números</label>
+          <input type="number" id="aQuantitat" value="1" min="1" max="100" step="1">
+        </div>
+        <div class="camp">
+          <label for="aCanal">Venda</label>
+          <select id="aCanal">
+            <option value="presencial">En mà (701–1500)</option>
+            <option value="online">Internet (1–700)</option>
+          </select>
+        </div>
+        <div class="camp">
+          <label for="aCobrament">Cobrament</label>
+          <select id="aCobrament">
+            <option value="pagat">Ja pagat — assigna els números</option>
+            <option value="pendent">Per comprovar</option>
+          </select>
+        </div>
+      </div>
+      <div class="accions">
+        <button type="button" class="boto" id="altaManual">Dona-la d'alta</button>
+      </div>
+      <p class="resultat" id="avisAlta" role="status" aria-live="polite"></p>
+    </div>
+
+    <div class="caixa">
+      <div class="caixa-cap">
+        <h3>Números assignats <span class="compte" id="compAssignats" data-zero="true">0</span></h3>
+        <div class="accions">
+          <input type="text" id="filtre" placeholder="Cerca correu o número" style="width:210px;" spellcheck="false">
+          <button type="button" class="boto-pla" id="copiarCorreus">Copia els correus per enviar</button>
+          <button type="button" class="boto-pla" id="baixarCsv">Baixa el CSV</button>
+        </div>
+      </div>
+      <div class="taula-caixa">
+        <table>
+          <thead>
+            <tr><th>Números</th><th>Correu</th><th>Quants</th><th>Import</th><th>Venda</th><th>Correu</th><th>Confirmada</th><th></th></tr>
+          </thead>
+          <tbody id="cosAssignats">
+            <tr><td colspan="8" class="buit">Carregant…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="resultat" id="avisAssignats" role="status" aria-live="polite"></p>
+    </div>
+
+  </div>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  var $ = function (id) { return document.getElementById(id); };
+  var eurFmt = new Intl.NumberFormat("ca-ES", { style: "currency", currency: "EUR" });
+  var numFmt = new Intl.NumberFormat("ca-ES");
+  var eur = function (n) { return eurFmt.format(n); };
+  var RE_EMAIL = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
+
+  var dades = { comandes: [], preu: 5, rangs: { online: [1, 700], presencial: [701, 1500] }, numerosAssignats: {} };
+  var clau = "";
+
+  /* ---------- servidor ---------- */
+
+  async function crida(accio, extra) {
+    var r = await fetch("/api/admin", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-clau": clau },
+      body: JSON.stringify(Object.assign({ accio: accio }, extra || {}))
+    });
+    var cos = null;
+    try { cos = await r.json(); } catch (e) {}
+    if (r.status === 401) {
+      var e401 = new Error("clau");
+      e401.codi = "clau_incorrecta";
+      throw e401;
+    }
+    if (!r.ok || !cos || !cos.ok) {
+      var err = new Error("error");
+      err.codi = (cos && cos.error) || "error_servidor";
+      err.detall = cos && cos.detall;
+      throw err;
+    }
+    return cos;
+  }
+
+  /* ---------- porta ---------- */
+
+  async function entrar(clauProvada) {
+    clau = clauProvada;
+    avis($("avisClau"), "Comprovant…", true);
+    try {
+      await carregar();
+      try { sessionStorage.setItem("clauTombola", clau); } catch (e) {}
+      $("porta").hidden = true;
+      $("panel").hidden = false;
+    } catch (e) {
+      clau = "";
+      avis($("avisClau"), e.codi === "clau_incorrecta"
+        ? "Contrasenya incorrecta."
+        : "No s'hi ha pogut connectar. " + (e.detall || ""), false);
+    }
+  }
+
+  $("entrar").addEventListener("click", function () { entrar($("clau").value); });
+  $("clau").addEventListener("keydown", function (e) { if (e.key === "Enter") entrar($("clau").value); });
+
+  /* ---------- utilitats ---------- */
+
+  function avis(node, txt, be) {
+    node.textContent = txt;
+    node.className = "resultat " + (be ? "be" : "mal");
+  }
+
+  function cel·la(tr, txt, classe) {
+    var td = document.createElement("td");
+    if (classe) td.className = classe;
+    td.textContent = txt;
+    tr.appendChild(td);
+    return td;
+  }
+
+  function botoMini(txt, classe, fn) {
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "mini" + (classe ? " " + classe : "");
+    b.textContent = txt;
+    b.addEventListener("click", fn);
+    return b;
+  }
+
+  function botoDosPassos(txt, txtConfirma, classe, fn) {
+    var b = document.createElement("button"), armat = false, rellotge = null;
+    b.type = "button";
+    b.className = "mini" + (classe ? " " + classe : "");
+    b.textContent = txt;
+    b.addEventListener("click", function () {
+      if (!armat) {
+        armat = true;
+        b.textContent = txtConfirma;
+        rellotge = setTimeout(function () { armat = false; b.textContent = txt; }, 4000);
+        return;
+      }
+      clearTimeout(rellotge);
+      fn();
+    });
+    return b;
+  }
+
+  function pastilla(txt, classe) {
+    var s = document.createElement("span");
+    s.className = "pastilla " + classe;
+    s.textContent = txt;
+    return s;
+  }
+
+  function dataCurta(iso) {
+    return iso ? new Date(iso).toLocaleDateString("ca-ES", { day: "2-digit", month: "short" }) : "—";
+  }
+  function nomCanal(c) { return c === "presencial" ? "En mà" : "Internet"; }
+
+  var pendents = function () { return dades.comandes.filter(function (c) { return c.estat === "pendent"; }); };
+  var assignats = function () { return dades.comandes.filter(function (c) { return c.estat === "pagat"; }); };
+  var perEnviar = function () { return assignats().filter(function (c) { return c.correuEstat !== "enviat"; }); };
+
+  /* ---------- carregar i pintar ---------- */
+
+  async function carregar() {
+    var r = await crida("llista");
+    dades = r;
+    pintar();
+  }
+
+  function pintar() {
+    pintarMarcadors();
+    pintarPendents();
+    pintarAssignats();
+  }
+
+  function pintarMarcadors() {
+    var topeOn = dades.rangs.online[1] - dades.rangs.online[0] + 1;
+    var topeMa = dades.rangs.presencial[1] - dades.rangs.presencial[0] + 1;
+    var on = dades.numerosAssignats.online || 0;
+    var ma = dades.numerosAssignats.presencial || 0;
+    $("mOnline").textContent = numFmt.format(on) + " / " + numFmt.format(topeOn);
+    $("mMano").textContent = numFmt.format(ma) + " / " + numFmt.format(topeMa);
+    $("barraOnline").style.width = (on / topeOn * 100) + "%";
+    $("barraMano").style.width = (ma / topeMa * 100) + "%";
+
+    var cobrat = 0, perComprovar = 0;
+    dades.comandes.forEach(function (c) {
+      if (c.estat === "pagat") cobrat += c.import;
+      else if (c.estat === "pendent") perComprovar += c.import;
+    });
+    $("mCobrat").textContent = eur(cobrat);
+    $("mPerComprovar").textContent = eur(perComprovar);
+    $("mCorreus").textContent = String(perEnviar().length);
+  }
+
+  function pintarPendents() {
+    var cos = $("cosPendents");
+    cos.textContent = "";
+    var llista = pendents().slice().sort(function (a, b) {
+      return String(a.creatEl).localeCompare(String(b.creatEl));
+    });
+    $("compPendents").textContent = String(llista.length);
+    $("compPendents").dataset.zero = String(llista.length === 0);
+
+    if (!llista.length) {
+      var tr0 = document.createElement("tr");
+      cel·la(tr0, "Cap comanda per comprovar.", "buit").colSpan = 7;
+      cos.appendChild(tr0);
+      return;
+    }
+
+    llista.forEach(function (c) {
+      var tr = document.createElement("tr");
+      cel·la(tr, c.ref, "nums");
+      cel·la(tr, c.email, "correu");
+      cel·la(tr, String(c.quantitat), "xifra");
+      cel·la(tr, eur(c.import), "xifra");
+      cel·la(tr, c.metodeCurt || "—");
+      cel·la(tr, dataCurta(c.creatEl), "xifra");
+      var td = document.createElement("td");
+      td.className = "cel-accions";
+      td.appendChild(botoMini("Confirma el pagament", "", function () { confirmar(c); }));
+      td.appendChild(botoDosPassos("Elimina", "Segur?", "perill", function () { esborrar(c, $("avisPendents")); }));
+      tr.appendChild(td);
+      cos.appendChild(tr);
+    });
+  }
+
+  function filtrats() {
+    var q = $("filtre").value.trim().toLowerCase();
+    var base = assignats();
+    if (!q) return base;
+    var comNum = parseInt(q, 10);
+    return base.filter(function (c) {
+      if (c.email.toLowerCase().indexOf(q) !== -1) return true;
+      if (isFinite(comNum) && c.numeros.indexOf(comNum) !== -1) return true;
+      return false;
+    });
+  }
+
+  function pintarAssignats() {
+    var cos = $("cosAssignats");
+    cos.textContent = "";
+    var tots = assignats();
+    $("compAssignats").textContent = String(tots.length);
+    $("compAssignats").dataset.zero = String(tots.length === 0);
+
+    var llista = filtrats().slice().sort(function (a, b) {
+      return String(b.pagatEl || b.creatEl).localeCompare(String(a.pagatEl || a.creatEl));
+    });
+
+    if (!llista.length) {
+      var tr0 = document.createElement("tr");
+      cel·la(tr0, tots.length ? "Cap comanda coincideix amb la cerca." : "Encara no hi ha números assignats.", "buit").colSpan = 8;
+      cos.appendChild(tr0);
+      return;
+    }
+
+    llista.forEach(function (c) {
+      var tr = document.createElement("tr");
+      cel·la(tr, c.numeros.join(", "), "nums");
+      cel·la(tr, c.email, "correu");
+      cel·la(tr, String(c.quantitat), "xifra");
+      cel·la(tr, eur(c.import), "xifra");
+      cel·la(tr, nomCanal(c.canal));
+
+      var tdCorreu = document.createElement("td");
+      var enviat = c.correuEstat === "enviat";
+      tdCorreu.appendChild(pastilla(enviat ? "Enviat" : "Per enviar", enviat ? "pastilla-enviat" : "pastilla-correu"));
+      tr.appendChild(tdCorreu);
+
+      cel·la(tr, dataCurta(c.pagatEl || c.creatEl), "xifra");
+
+      var td = document.createElement("td");
+      td.className = "cel-accions";
+      td.appendChild(botoMini("Copia el correu", "", function () {
+        copiar(correuComText(c));
+        avis($("avisAssignats"), "Correu de " + c.email + " copiat.", true);
+      }));
+      td.appendChild(botoMini(enviat ? "Marca per enviar" : "Marca enviat", "", function () {
+        marcarCorreu(c, enviat ? "per_enviar" : "enviat");
+      }));
+      td.appendChild(botoDosPassos("Allibera els números", "Segur?", "perill", function () {
+        esborrar(c, $("avisAssignats"));
+      }));
+      tr.appendChild(td);
+      cos.appendChild(tr);
+    });
+  }
+
+  $("filtre").addEventListener("input", pintarAssignats);
+  $("refresca").addEventListener("click", function () {
+    carregar().catch(function (e) { avis($("avisPendents"), "No s'ha pogut actualitzar.", false); });
+  });
+
+  /* ---------- accions ---------- */
+
+  async function confirmar(c) {
+    avis($("avisPendents"), "Assignant els números…", true);
+    try {
+      var r = await crida("confirma", { id: c.id });
+      await carregar();
+      avis($("avisPendents"), r.jaEstava
+        ? "Aquesta comanda ja estava confirmada."
+        : "Confirmada: " + c.email + " → " + r.numeros.join(", ") + ". El correu queda a la cua.", true);
+    } catch (e) {
+      avis($("avisPendents"), e.codi === "no_queden_numeros"
+        ? "No queden prou números lliures en aquest tram."
+        : "No s'ha pogut confirmar (" + e.codi + ").", false);
+    }
+  }
+
+  async function esborrar(c, node) {
+    try {
+      await crida("elimina", { id: c.id });
+      await carregar();
+      avis(node, "Comanda de " + c.email + " eliminada.", true);
+    } catch (e) {
+      avis(node, "No s'ha pogut eliminar (" + e.codi + ").", false);
+    }
+  }
+
+  async function marcarCorreu(c, estat) {
+    try {
+      await crida("correu", { id: c.id, estat: estat });
+      await carregar();
+    } catch (e) {
+      avis($("avisAssignats"), "No s'ha pogut canviar l'estat del correu.", false);
+    }
+  }
+
+  $("altaManual").addEventListener("click", async function () {
+    var email = $("aEmail").value.trim();
+    var quantitat = parseInt($("aQuantitat").value, 10);
+    if (!RE_EMAIL.test(email)) { avis($("avisAlta"), "Aquest correu no és vàlid.", false); return; }
+    if (!isFinite(quantitat) || quantitat < 1) { avis($("avisAlta"), "Indica quants números són.", false); return; }
+    avis($("avisAlta"), "Donant d'alta…", true);
+    try {
+      var r = await crida("alta", {
+        email: email,
+        quantitat: quantitat,
+        canal: $("aCanal").value,
+        pagat: $("aCobrament").value === "pagat"
+      });
+      await carregar();
+      avis($("avisAlta"), r.numeros
+        ? "Alta feta: " + email + " → " + r.numeros.join(", ")
+        : "Afegida a la llista per comprovar.", true);
+      $("aEmail").value = "";
+      $("aQuantitat").value = "1";
+    } catch (e) {
+      avis($("avisAlta"), "No s'ha pogut donar d'alta (" + e.codi + ").", false);
+    }
+  });
+
+  /* ---------- correus i CSV ---------- */
+
+  var ASSUMPTE = "Els teus números de la Tómbola DHF";
+
+  function correuComText(c) {
+    return [
+      "Per a: " + c.email,
+      "Assumpte: " + ASSUMPTE,
+      "",
+      "Hola!",
+      "",
+      "Hem comprovat el teu pagament de " + eur(c.import) + " per a la Tómbola DHF.",
+      "",
+      "Els teus números són: " + c.numeros.join(", "),
+      "",
+      "Guarda aquest correu. La tómbola es fa el 20 i 21 de novembre de 2026 i t'avisem si et toca algun premi.",
+      "",
+      "Gràcies per col·laborar!",
+      "Tómbola DHF"
+    ].join("\n");
+  }
+
+  $("copiarCorreus").addEventListener("click", function () {
+    var cua = perEnviar();
+    if (!cua.length) { avis($("avisAssignats"), "No hi ha cap correu pendent d'enviar.", true); return; }
+    copiar(cua.map(correuComText).join("\n\n———\n\n"));
+    avis($("avisAssignats"), cua.length + " correus copiats. Quan els hagis enviat, marca'ls com a enviats.", true);
+  });
+
+  $("baixarCsv").addEventListener("click", function () {
+    var files = [["numero", "correu", "venda", "cobrament", "correu_enviat", "confirmada"]];
+    var solts = [];
+    dades.comandes.forEach(function (c) {
+      c.numeros.forEach(function (n) {
+        solts.push([n, c.email, nomCanal(c.canal), c.estat, c.correuEstat === "enviat" ? "si" : "no", c.pagatEl || ""]);
+      });
+    });
+    solts.sort(function (a, b) { return a[0] - b[0]; });
+    var csv = files.concat(solts).map(function (f) {
+      return f.map(function (x) { return '"' + String(x).replace(/"/g, '""') + '"'; }).join(",");
+    }).join("\r\n");
+
+    var blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "tombola-dhf-numeros.csv";
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  });
+
+  function copiar(txt) {
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt);
+    } catch (e) {}
+  }
+
+  /* ---------- arrencada ---------- */
+
+  try {
+    var desada = sessionStorage.getItem("clauTombola");
+    if (desada) entrar(desada);
+  } catch (e) {}
+})();
+</script>
+
+</body>
+</html>
