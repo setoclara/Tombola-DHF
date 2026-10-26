@@ -362,6 +362,9 @@
       <span class="preu-mot">número</span>
     </div>
     <p class="plom">Tria quants números vols, paga amb Revolut o Bizum i t'assignem els teus números del sorteig. Els premis els posen els comerços que ens fan costat.</p>
+    <div class="accions">
+      <button type="button" class="boto-pla" data-premis>Veure els premis</button>
+    </div>
   </div>
 </header>
 
@@ -476,7 +479,7 @@
 
       <p class="pista">No cal que ens enviïs res més. Si vols, pots guardar-te aquest resum o avisar-nos igualment:</p>
       <div class="accions">
-        <button type="button" class="boto" id="veurePremis">Veure els premis</button>
+        <button type="button" class="boto" data-premis>Veure els premis</button>
       </div>
 
       <div class="accions">
@@ -790,7 +793,9 @@
 
   $("tancarPremis").addEventListener("click", tancarPremis);
   $("tancarPremis2").addEventListener("click", tancarPremis);
-  $("veurePremis").addEventListener("click", obrirPremis);
+  document.querySelectorAll("[data-premis]").forEach(function (b) {
+    b.addEventListener("click", obrirPremis);
+  });
   // Clicar el fons, fora de la caixa, també tanca.
   modalPremis.addEventListener("click", function (e) {
     if (e.target === modalPremis) tancarPremis();
