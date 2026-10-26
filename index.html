@@ -65,7 +65,6 @@
   }
   .plom { color: var(--boira); max-width: 56ch; }
   .ma { font-family: var(--ma); font-size: 1.35rem; line-height: 1.25; color: var(--gel); }
-  .fletxa { width: 56px; height: 36px; color: var(--gel); flex: none; }
 
   /* ---------- hèroi ---------- */
   .heroi { position: relative; overflow: hidden; padding-block: 56px 48px; }
@@ -252,21 +251,8 @@
 
   /* ---------- seccions fosques ---------- */
   .seccio { display: flex; flex-direction: column; gap: 18px; }
-  h2.titol-seccio { font-family: var(--titol); font-style: italic; font-weight: 700; font-size: clamp(1.8rem, 7vw, 2.6rem); text-transform: uppercase; line-height: 0.95; }
   h3 { font-family: var(--condensada); font-weight: 700; font-size: 1.05rem; letter-spacing: 0.08em; text-transform: uppercase; }
 
-  .barra-tram { display: flex; height: 58px; border-radius: 11px; overflow: hidden; }
-  .tram { display: grid; place-items: center; text-align: center; padding: 0 8px; font-family: var(--condensada); font-weight: 600; font-size: 0.92rem; letter-spacing: 0.04em; text-transform: uppercase; }
-  .tram-online { background: var(--gel); color: var(--nit); }
-  .tram-ma { background: var(--nit-2); color: var(--boira); border: 1px solid var(--vora); border-left: none; }
-  .notes { display: grid; gap: 11px; }
-  .nota { font-size: 0.93rem; color: var(--boira); display: grid; grid-template-columns: 12px 1fr; gap: 11px; align-items: start; }
-  .nota strong { color: var(--blanc); font-weight: 600; }
-  .punt { width: 10px; height: 10px; border-radius: 3px; margin-top: 7px; }
-  .punt-online { background: var(--gel); }
-  .punt-ma { background: var(--nit-2); border: 1px solid var(--vora); }
-  .anotacio-ma { display: flex; align-items: flex-start; gap: 10px; padding-left: 4px; }
-  .anotacio-ma .fletxa { transform: rotate(8deg); }
 
   .legal { font-size: 0.86rem; color: var(--boira); border-top: 1px solid var(--vora); padding-top: 18px; }
 
@@ -494,22 +480,6 @@
       </div>
       <p class="pista" id="estadoCopia2" role="status" aria-live="polite"></p>
     </div>
-  </section>
-
-  <section class="seccio">
-    <h2 class="titol-seccio">Com es reparteixen els números</h2>
-    <div class="barra-tram" role="img" aria-label="De l'1 al 700 es venen per internet; del 701 al 1500, en mà.">
-      <div class="tram tram-online" style="flex: 700 0 0;"><span>1 – 700<br>internet</span></div>
-      <div class="tram tram-ma" style="flex: 800 0 0;"><span>701 – 1.500<br>en mà</span></div>
-    </div>
-    <div class="notes">
-      <p class="nota"><span class="punt punt-online"></span><span>Les comandes d'aquesta pàgina reben números de l'<strong>1 al 700</strong>, triats a l'atzar. Si en demanes 3, et toquen 3 números diferents.</span></p>
-      <p class="nota"><span class="punt punt-ma"></span><span>Del <strong>701 al 1.500</strong> es reserven per a la venda en mà, en paper.</span></p>
-    </div>
-    <p class="anotacio-ma">
-      <svg class="fletxa" viewBox="0 0 80 50" aria-hidden="true"><path d="M8 42 C 24 16, 50 6, 72 10" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M63 4 L73 10 L64 17" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <span class="ma">cada número només<br>es dóna una vegada</span>
-    </p>
   </section>
 
   <section class="seccio">
