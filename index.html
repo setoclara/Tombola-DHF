@@ -526,7 +526,6 @@
     <img class="premis-img" src="/premis.jpg" alt="Cartell del Sorteig DHF amb tots els premis: roba i material esportiu, sopars i dinars, lots de productes, entrades i vals de regal." loading="lazy">
     <div class="premis-peu">
       <a href="/premis.jpg" target="_blank" rel="noopener">Obre el cartell a mida completa</a>
-      <button type="button" class="boto-pla" id="tancarPremis2">Tanca</button>
     </div>
   </div>
 </dialog>
@@ -792,7 +791,6 @@
   }
 
   $("tancarPremis").addEventListener("click", tancarPremis);
-  $("tancarPremis2").addEventListener("click", tancarPremis);
   document.querySelectorAll("[data-premis]").forEach(function (b) {
     b.addEventListener("click", obrirPremis);
   });
