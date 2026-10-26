@@ -109,7 +109,7 @@ fet que algú altre la tindrà.
 
 Tot el que es toca sovint és a **`lib/db.js`**, a dalt de tot:
 
-- `PREU` — el preu per número (ara 5).
+- `PREU` — el preu per número (ara 3).
 - `RANGS` — els trams: internet 1–700, en mà 701–1500.
 - `METODES` — les formes de pagament i a nom de qui van.
 - `MAX_PER_COMANDA` — el màxim de números per comanda (ara 20).
