@@ -84,7 +84,9 @@ async function hePagat(cos, res) {
   const ref = String(cos.ref || "").trim().toUpperCase();
   const metode = METODES[cos.metode] ? cos.metode : null;
 
-  if (!/^TOMBOLA-[A-Z0-9]{4,12}$/.test(ref)) {
+  // S'hi accepta el concepte vell (TOMBOLA-) a part del nou: qui tingui una
+  // comanda a mig fer al navegador ha de poder acabar-la igualment.
+  if (!/^(SORTEIG|TOMBOLA)-[A-Z0-9]{4,12}$/.test(ref)) {
     res.status(400).json({ error: "ref_invalida" });
     return;
   }

@@ -1,4 +1,4 @@
-# Tómbola DHF
+# Sorteig DHF
 
 La pàgina de venda de números i el panell d'organització, per posar a Vercel.
 
@@ -13,6 +13,7 @@ no cap compte enlloc.
 - `api/admin.js` — el que crida el panell
 - `api/export.js` — només llegeix: d'aquí surt la còpia al full de càlcul
 - `lib/db.js` — la base de dades, els preus, els trams de números i les formes de pagament
+- `premis.jpg` — el cartell dels premis, el que surt al pop-up
 
 ---
 
@@ -133,7 +134,9 @@ en un minut.
   dues persones confirmen alhora, una de les dues operacions falla i es reintenta amb
   els números següents.
 - **El concepte de pagament el genera el servidor**, mai el navegador, perquè no hi pugui
-  haver dues comandes amb el mateix concepte.
+  haver dues comandes amb el mateix concepte. Des del canvi de nom són `SORTEIG-XXXXXX`;
+  l'API segueix acceptant els `TOMBOLA-XXXXXX` d'abans, per si algú tenia una comanda a
+  mig fer al navegador.
 - **Esborrar una comanda allibera els seus números** (`ON DELETE CASCADE`), i tornen a
   estar disponibles per al següent.
 - **Les comandes que algú comença i no acaba** queden com a `iniciada` i no surten al

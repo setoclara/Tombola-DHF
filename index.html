@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Tómbola DHF</title>
+<title>Sorteig DHF</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&family=Bodoni+Moda:ital,opsz,wght@1,6..96,700..900&family=Caveat:wght@500;600&display=swap">
 <style>
   :root { color-scheme: light; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
@@ -84,7 +84,7 @@
 
   h1 { font-family: var(--titol); font-style: italic; font-weight: 900; text-transform: uppercase; line-height: 0.84; letter-spacing: -0.015em; }
   h1 span { display: block; }
-  .t-tombola { font-size: clamp(3.1rem, 15.5vw, 6.4rem); }
+  .t-sorteig { font-size: clamp(3.1rem, 15.5vw, 6.4rem); }
   .t-dhf { font-size: clamp(3.4rem, 17vw, 7rem); margin-left: 0.06em; }
   .data {
     font-family: var(--condensada); font-weight: 700; font-size: clamp(1.1rem, 4.6vw, 1.6rem);
@@ -270,6 +270,29 @@
 
   .legal { font-size: 0.86rem; color: var(--boira); border-top: 1px solid var(--vora); padding-top: 18px; }
 
+  /* ---------- el cartell dels premis ---------- */
+  .premis {
+    border: none; padding: 0; background: transparent;
+    width: min(560px, 100%); max-width: 100%;
+  }
+  .premis::backdrop { background: rgba(5, 9, 16, 0.86); }
+  .premis-caixa {
+    background: var(--nit-2); border: 1px solid var(--vora); border-radius: 16px;
+    padding: 14px; display: flex; flex-direction: column; gap: 12px;
+    max-height: 92vh;
+  }
+  .premis-dalt { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .premis-titol {
+    font-family: var(--condensada); font-weight: 700; font-size: 1.05rem;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--gel);
+  }
+  .premis-img {
+    display: block; width: 100%; height: auto; max-height: 72vh;
+    object-fit: contain; border-radius: 10px; background: var(--nit);
+  }
+  .premis-peu { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .premis-peu a { color: var(--gel); font-size: 0.9rem; }
+
   /* ---------- panell ---------- */
   .panell { border-top: 1px solid var(--vora); padding-top: 34px; display: flex; flex-direction: column; gap: 20px; }
   .marcadors { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 12px; }
@@ -331,7 +354,7 @@
   <div class="heroi-fons" aria-hidden="true"></div>
   <div class="heroi-vel" aria-hidden="true"></div>
   <div class="heroi-dins gutter centre">
-    <h1><span class="t-tombola">Tómbola</span><span class="t-dhf">DHF</span></h1>
+    <h1><span class="t-sorteig">Sorteig</span><span class="t-dhf">DHF</span></h1>
     <p class="data">20–21 novembre 2026</p>
     <div class="preu-bitllet">
       <span class="preu-xifra" data-preu-euros>3 €</span>
@@ -419,7 +442,7 @@
       <div class="dada">
         <div class="dada-text">
           <span class="dada-clau">Concepte del pagament</span>
-          <span class="dada-valor ref" id="resRef">TOMBOLA-000000</span>
+          <span class="dada-valor ref" id="resRef">SORTEIG-000000</span>
         </div>
         <button type="button" class="mini" data-copiar="resRef">Copia</button>
       </div>
@@ -428,7 +451,7 @@
       <div class="pagaments" id="pagaments"></div>
 
       <ol class="passos">
-        <li><strong>Tria per on pagues</strong><span>Una de les tres opcions de dalt.</span></li>
+        <li><strong>Tria per on pagues</strong><span>Una de les dues opcions de dalt.</span></li>
         <li><strong>Fes el pagament</strong><span>Per l'import exacte i, si l'app t'ho deixa, posant-hi el concepte.</span></li>
         <li><strong>Torna aquí i prem "Ja he pagat"</strong><span>Així ens arriba la comanda i la podem comprovar.</span></li>
       </ol>
@@ -453,6 +476,10 @@
 
       <p class="pista">No cal que ens enviïs res més. Si vols, pots guardar-te aquest resum o avisar-nos igualment:</p>
       <div class="accions">
+        <button type="button" class="boto" id="veurePremis">Veure els premis</button>
+      </div>
+
+      <div class="accions">
         <button type="button" class="boto-pla" id="copiarResum">Copia el resum</button>
         <a class="boto-pla" id="enllacWhatsapp2" href="#" target="_blank" rel="noopener" style="text-decoration:none;">Avisar per WhatsApp</a>
       </div>
@@ -473,7 +500,7 @@
       <div class="tram tram-ma" style="flex: 800 0 0;"><span>701 – 1.500<br>en mà</span></div>
     </div>
     <div class="notes">
-      <p class="nota"><span class="punt punt-online"></span><span>Les comandes d'aquesta pàgina reben números de l'<strong>1 al 700</strong>, per ordre d'arribada. Si en demanes 3, et toquen 3 números diferents.</span></p>
+      <p class="nota"><span class="punt punt-online"></span><span>Les comandes d'aquesta pàgina reben números de l'<strong>1 al 700</strong>, triats a l'atzar. Si en demanes 3, et toquen 3 números diferents.</span></p>
       <p class="nota"><span class="punt punt-ma"></span><span>Del <strong>701 al 1.500</strong> es reserven per a la venda en mà, en paper.</span></p>
     </div>
     <p class="anotacio-ma">
@@ -483,9 +510,23 @@
   </section>
 
   <section class="seccio">
-    <p class="legal">El teu correu només s'utilitza per enviar-te els números i avisar-te del resultat. Els números queden confirmats quan comprovem el pagament. La tómbola es fa el 20 i 21 de novembre de 2026.</p>
+    <p class="legal">El teu correu només s'utilitza per enviar-te els números i avisar-te del resultat. Els números queden confirmats quan comprovem el pagament. El sorteig es fa el 20 i 21 de novembre de 2026.</p>
   </section>
 </main>
+
+<dialog class="premis" id="modalPremis" aria-labelledby="premisTitol">
+  <div class="premis-caixa">
+    <div class="premis-dalt">
+      <span class="premis-titol" id="premisTitol">El que es pot guanyar</span>
+      <button type="button" class="mini" id="tancarPremis">Tanca</button>
+    </div>
+    <img class="premis-img" src="/premis.jpg" alt="Cartell del Sorteig DHF amb tots els premis: roba i material esportiu, sopars i dinars, lots de productes, entrades i vals de regal." loading="lazy">
+    <div class="premis-peu">
+      <a href="/premis.jpg" target="_blank" rel="noopener">Obre el cartell a mida completa</a>
+      <button type="button" class="boto-pla" id="tancarPremis2">Tanca</button>
+    </div>
+  </div>
+</dialog>
 
 <script>
 (function () {
@@ -587,7 +628,7 @@
   function resumen(pedido) {
     var m = CONFIG.pagament[pedido.metode] || CONFIG.pagament[METODE_PER_DEFECTE];
     return [
-      "Comanda per a la Tómbola DHF",
+      "Comanda per al Sorteig DHF",
       "Concepte: " + pedido.ref,
       "Nom: " + (pedido.nom || "—"),
       "Correu: " + pedido.email,
@@ -727,6 +768,34 @@
     }
   }
 
+  /* ---------- el cartell dels premis ---------- */
+
+  var modalPremis = $("modalPremis");
+
+  function obrirPremis() {
+    if (!modalPremis) return;
+    // showModal() dona sol el fons fosc, la tecla Esc i el focus atrapat.
+    if (typeof modalPremis.showModal === "function") {
+      if (!modalPremis.open) modalPremis.showModal();
+    } else {
+      modalPremis.setAttribute("open", "");
+    }
+  }
+
+  function tancarPremis() {
+    if (!modalPremis) return;
+    if (typeof modalPremis.close === "function") modalPremis.close();
+    else modalPremis.removeAttribute("open");
+  }
+
+  $("tancarPremis").addEventListener("click", tancarPremis);
+  $("tancarPremis2").addEventListener("click", tancarPremis);
+  $("veurePremis").addEventListener("click", obrirPremis);
+  // Clicar el fons, fora de la caixa, també tanca.
+  modalPremis.addEventListener("click", function (e) {
+    if (e.target === modalPremis) tancarPremis();
+  });
+
   /* ---------- accions ---------- */
 
   $("generar").addEventListener("click", async function () {
@@ -783,6 +852,9 @@
       desar();
       mostrarFet(pedidoActual);
       $("zonaFet").scrollIntoView({ behavior: "smooth", block: "start" });
+      // Just després de donar la comanda per feta, el cartell dels premis.
+      // Només aquí: en recuperar una comanda ja feta no torna a sortir sol.
+      obrirPremis();
     } catch (e) {
       $("errorPagat").textContent = textError(e.codi);
       $("errorPagat").hidden = false;
