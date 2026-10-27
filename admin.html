@@ -352,12 +352,12 @@
 
     <div class="marcadors">
       <div class="marcador">
-        <span class="marcador-clau">Internet · 1–700</span>
+        <span class="marcador-clau" id="clauOnline">Internet</span>
         <span class="marcador-valor" id="mOnline">—</span>
         <div class="medidor"><i id="barraOnline" style="width:0%"></i></div>
       </div>
       <div class="marcador">
-        <span class="marcador-clau">En mà · 701–1500</span>
+        <span class="marcador-clau" id="clauMano">En mà</span>
         <span class="marcador-valor" id="mMano">—</span>
         <div class="medidor"><i id="barraMano" style="width:0%"></i></div>
       </div>
@@ -414,8 +414,8 @@
         <div class="camp">
           <label for="aCanal">Venda</label>
           <select id="aCanal">
-            <option value="presencial">En mà (701–1500)</option>
-            <option value="online">Internet (1–700)</option>
+            <option value="presencial">En mà</option>
+            <option value="online">Internet</option>
           </select>
         </div>
         <div class="camp">
@@ -467,7 +467,7 @@
   var eur = function (n) { return eurFmt.format(n); };
   var RE_EMAIL = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
 
-  var dades = { comandes: [], preu: 5, rangs: { online: [1, 700], presencial: [701, 1500] }, numerosAssignats: {} };
+  var dades = { comandes: [], preu: 3, rangs: { online: [1, 400], presencial: [401, 800] }, numerosAssignats: {} };
   var clau = "";
 
   /* ---------- servidor ---------- */
@@ -594,6 +594,11 @@
     var topeMa = dades.rangs.presencial[1] - dades.rangs.presencial[0] + 1;
     var on = dades.numerosAssignats.online || 0;
     var ma = dades.numerosAssignats.presencial || 0;
+    var tram = function (r) { return numFmt.format(r[0]) + "–" + numFmt.format(r[1]); };
+    $("clauOnline").textContent = "Internet · " + tram(dades.rangs.online);
+    $("clauMano").textContent = "En mà · " + tram(dades.rangs.presencial);
+    $("aCanal").options[0].textContent = "En mà (" + tram(dades.rangs.presencial) + ")";
+    $("aCanal").options[1].textContent = "Internet (" + tram(dades.rangs.online) + ")";
     $("mOnline").textContent = numFmt.format(on) + " / " + numFmt.format(topeOn);
     $("mMano").textContent = numFmt.format(ma) + " / " + numFmt.format(topeMa);
     $("barraOnline").style.width = (on / topeOn * 100) + "%";

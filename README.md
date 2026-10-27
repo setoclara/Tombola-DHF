@@ -111,7 +111,8 @@ fet que algú altre la tindrà.
 Tot el que es toca sovint és a **`lib/db.js`**, a dalt de tot:
 
 - `PREU` — el preu per número (ara 3).
-- `RANGS` — els trams: internet 1–700, en mà 701–1500.
+- `RANGS` — els trams: internet 1–400, en mà 401–800. Si els canvies, el panell
+  agafa sol les etiquetes noves; no s'han de tocar enlloc més.
 - `METODES` — les formes de pagament i a nom de qui van.
 - `MAX_PER_COMANDA` — el màxim de números per comanda (ara 20).
 
