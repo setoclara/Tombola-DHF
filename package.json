@@ -3,7 +3,6 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@neondatabase/serverless": "^0.10.4",
-    "nodemailer": "^6.9.16"
+    "@neondatabase/serverless": "^0.10.4"
   }
 }

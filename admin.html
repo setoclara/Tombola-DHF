@@ -642,7 +642,7 @@
       var td = document.createElement("td");
       td.className = "cel-accions";
       td.appendChild(botoMini("Confirma el pagament", "", function () { confirmar(c); }));
-      td.appendChild(botoMini("Recordatori de pagament", "", function () { obrirRecordatori(c, this); }));
+      td.appendChild(botoMini("Recordatori de pagament", "", function () { obrirRecordatori(c); }));
       td.appendChild(botoDosPassos("Elimina", "Segur?", "perill", function () { esborrar(c, $("avisPendents")); }));
       tr.appendChild(td);
       cos.appendChild(tr);
@@ -701,7 +701,7 @@
       // Un cop marcat com a enviat, el botó d'enviar desapareix: així ningú no
       // envia el mateix correu dues vegades. Torna a sortir si es desmarca.
       if (!enviat) {
-        td.appendChild(botoMini("Enviar correu", "", function () { enviarCorreu(c, this); }));
+        td.appendChild(botoMini("Enviar correu", "", function () { obrirCorreu(c); }));
       }
       td.appendChild(botoMini(enviat ? "Marca per enviar" : "Marca enviat", "", function () {
         marcarCorreu(c, enviat ? "per_enviar" : "enviat");
@@ -906,36 +906,14 @@
     return true;
   }
 
-  // Si el servidor té el correu configurat, l'envia ell des del compte del
-  // club i el marca com a enviat tot sol: funciona des de qualsevol ordinador,
-  // tingui o no la sessió del Gmail oberta. Si no el té, s'obre el Gmail com
-  // abans i es marca igualment, perquè no s'hagi de prémer dos botons.
-  async function enviarCorreu(c, boto) {
-    if (dades.correuAutomatic) {
-      var textOriginal = boto ? boto.textContent : "";
-      if (boto) { boto.disabled = true; boto.textContent = "Enviant…"; }
-      avis($("avisAssignats"), "Enviant el correu a " + c.email + "…", true);
-      try {
-        var r = await crida("envia", { id: c.id, assumpte: ASSUMPTE, cos: cosCorreu(c) });
-        await carregar();
-        avis($("avisAssignats"), "Correu enviat a " + r.per + " des de " + r.de + ", i marcat com a enviat.", true);
-        return;
-      } catch (e) {
-        if (e.codi !== "correu_no_configurat") {
-          avis($("avisAssignats"), "No s'ha pogut enviar (" + e.codi + ")" + detallErr(e) + ". Prova-ho un altre cop o obre'l a mà.", false);
-          return;
-        }
-        // El servidor ha perdut la configuració pel camí: seguim pel Gmail.
-      } finally {
-        if (boto) { boto.disabled = false; boto.textContent = textOriginal; }
-      }
-    }
-
+  function obrirCorreu(c) {
     if (!obrirGmail(c.email, ASSUMPTE, cosCorreu(c))) {
       copiar(correuComText(c));
       avis($("avisAssignats"), "El correu és massa llarg per obrir-lo sol; l'he copiat perquè l'enganxis.", false);
       return;
     }
+    // Es marca com a enviat aquí mateix, sense esperar cap altre botó. Qui l'obre
+    // l'envia tot seguit; i si al final no el va enviar, "Marca per enviar" ho desfà.
     avis($("avisAssignats"), "Correu obert per a " + c.email + ", des de " + CORREU_CLUB + ", i marcat com a enviat. Si al final no l'envies, prem \"Marca per enviar\".", true);
     marcarCorreu(c, "enviat");
   }
@@ -966,27 +944,7 @@
     ]).join("\n");
   }
 
-  async function obrirRecordatori(c, boto) {
-    if (dades.correuAutomatic) {
-      var textOriginal = boto ? boto.textContent : "";
-      if (boto) { boto.disabled = true; boto.textContent = "Enviant…"; }
-      avis($("avisPendents"), "Enviant el recordatori a " + c.email + "…", true);
-      try {
-        // "marca: false": el recordatori no és el correu dels números, així que
-        // no toca l'estat del correu de la comanda.
-        var r = await crida("envia", { id: c.id, assumpte: ASSUMPTE_RECORDATORI, cos: cosRecordatori(c), marca: false });
-        avis($("avisPendents"), "Recordatori enviat a " + r.per + " des de " + r.de + ".", true);
-        return;
-      } catch (e) {
-        if (e.codi !== "correu_no_configurat") {
-          avis($("avisPendents"), "No s'ha pogut enviar (" + e.codi + ")" + detallErr(e) + ". Prova-ho un altre cop o obre'l a mà.", false);
-          return;
-        }
-      } finally {
-        if (boto) { boto.disabled = false; boto.textContent = textOriginal; }
-      }
-    }
-
+  function obrirRecordatori(c) {
     if (!obrirGmail(c.email, ASSUMPTE_RECORDATORI, cosRecordatori(c))) {
       copiar(["Per a: " + c.email, "Assumpte: " + ASSUMPTE_RECORDATORI, "", cosRecordatori(c)].join("\n"));
       avis($("avisPendents"), "El recordatori és massa llarg per obrir-lo sol; l'he copiat perquè l'enganxis.", false);

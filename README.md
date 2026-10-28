@@ -14,7 +14,6 @@ no cap compte enlloc.
 - `api/admin.js` — el que crida el panell
 - `api/export.js` — només llegeix: d'aquí surt la còpia al full de càlcul
 - `lib/db.js` — la base de dades, els preus, els trams de números i les formes de pagament
-- `lib/correu.js` — l'enviament dels correus des del compte del club
 - `premis.jpg` — el cartell dels premis, el que surt al pop-up
 
 ---
@@ -162,28 +161,31 @@ en un minut.
 
 ## Els correus
 
-Els envia el servidor, des del compte del club, amb les variables `GMAIL_USUARI` i
-`GMAIL_CLAU` (una **contrasenya d'aplicació** de Google, no la del correu). Així surten
-sempre des de la mateixa adreça encara que qui premi el botó no hi tingui cap sessió
-oberta, i des de qualsevol ordinador.
+El panell no envia res sol: obre el Gmail amb el correu ja escrit i l'envies tu. Totes
+dues finestres s'obren amb `authuser=juniordhfemeni@gmail.com`, o sigui que **qui els
+envia ha de tenir la sessió d'aquest compte oberta** al seu navegador; si no la té, el
+Gmail la hi demanarà abans de deixar-lo enviar.
 
-Per crear la contrasenya d'aplicació: Compte de Google → Seguretat → activa la
-verificació en dos passos → Contrasenyes d'aplicacions → en crees una i la copies a
-Vercel com a `GMAIL_CLAU` (els espais no importen). `GMAIL_USUARI` és
-`juniordhfemeni@gmail.com`.
-
-Si aquestes dues variables no hi són, el panell no es queda clavat: obre el Gmail amb
-el correu ja escrit, com abans, i el marca igualment com a enviat.
+Que el servidor els enviés sol voldria dir posar-hi una contrasenya d'aplicació del
+compte de Google, i això demana poder tocar-ne la seguretat. Mentre no es pugui, el
+camí és aquest.
 
 - **Enviar correu**, a les comandes ja confirmades: els números i la llista de premis.
-  En surt, **la comanda queda marcada com a enviada tota sola**; si de cas, es pot
-  desmarcar amb "Marca per enviar".
+  En obrir-lo, la comanda **queda marcada com a enviada tota sola**; si al final no
+  s'envia, es desfà amb "Marca per enviar".
 - **Recordatori de pagament**, a les comandes per comprovar: el concepte, l'import i les
   dues maneres de pagar. Per a qui ha fet la comanda i encara no li hem trobat el diner.
-  Aquest no toca l'estat del correu, que es pot enviar tantes vegades com calgui.
 
-El text el redacta el panell, però **el destinatari surt sempre de la comanda**: l'API
-no deixa dir a qui s'escriu, així que la contrasenya del panell no serveix per enviar
-correus a qualsevol adreça des del compte del club. I si l'enviament falla, la comanda
-**no** es marca com a enviada.
+## El que encara no hi ha: el correu automàtic
 
+Ara el panell et dona el correu escrit i tu l'envies. Per enviar-lo sol, cal afegir-hi
+un servei de correu. La via més senzilla amb un Gmail:
+
+1. Activa la verificació en dos passos al compte de Google.
+2. Crea una **contrasenya d'aplicació** (Compte de Google → Seguretat → Contrasenyes
+   d'aplicacions).
+3. Afegeix-la a Vercel com a `GMAIL_USUARI` i `GMAIL_CLAU`.
+4. Demana-m'ho i t'escric la funció que envia els correus de la cua.
+
+Amb això, marcar una comanda com a pagada enviaria el correu amb els números sense que
+hi toquessis res.
