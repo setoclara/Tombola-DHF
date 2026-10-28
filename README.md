@@ -127,7 +127,7 @@ Tot el que es toca sovint és a **`lib/db.js`**, a dalt de tot:
   agafa sol les etiquetes noves; no s'han de tocar enlloc més.
 - `METODES` — les formes de pagament, a nom de qui van i on es paga (`detall`, que és
   el que surt escrit als recordatoris que envia el panell).
-- `MAX_PER_COMANDA` — el màxim de números per comanda (ara 30). A `/team` el límit
+- `MAX_PER_COMANDA` — el màxim de números per comanda (ara 20). A `/team` el límit
   de cada alta és el mateix; al panell, 100.
 
 Si canvies els noms o els telèfons, canvia'ls **també** al bloc `CONFIG` de dalt de tot

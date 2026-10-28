@@ -96,7 +96,7 @@ function qui(res, rol) {
     preu: PREU,
     rangs: RANGS,
     metodes: METODES,
-    maxAlta: rol === "equip" ? 30 : 100
+    maxAlta: rol === "equip" ? 20 : 100
   });
 }
 
@@ -231,7 +231,7 @@ async function alta(cos, res, rol) {
   const quantitat = Number.parseInt(cos.quantitat, 10);
   const canal = rol === "equip" ? "presencial" : (RANGS[cos.canal] ? cos.canal : "presencial");
   const metode = METODES[cos.metode] ? cos.metode : "";
-  const maxim = rol === "equip" ? 30 : 100;
+  const maxim = rol === "equip" ? 20 : 100;
 
   if (!emailValid(email)) {
     res.status(400).json({ error: "correu_invalid" });

@@ -380,18 +380,18 @@
         <label for="cantidad">Quants números vols?</label>
         <div class="comptador">
           <button type="button" class="pas" id="menos" aria-label="Treure un número">−</button>
-          <input type="number" id="cantidad" name="cantidad" value="1" min="1" max="30" step="1" inputmode="numeric">
+          <input type="number" id="cantidad" name="cantidad" value="1" min="1" max="20" step="1" inputmode="numeric">
           <button type="button" class="pas" id="mas" aria-label="Afegir un número">+</button>
           <div class="dreceres" id="atajos">
             <button type="button" class="drecera" data-n="1">1</button>
             <button type="button" class="drecera" data-n="2">2</button>
             <button type="button" class="drecera" data-n="5">5</button>
             <button type="button" class="drecera" data-n="10">10</button>
+            <button type="button" class="drecera" data-n="15">15</button>
             <button type="button" class="drecera" data-n="20">20</button>
-            <button type="button" class="drecera" data-n="30">30</button>
           </div>
         </div>
-        <span class="pista">Màxim 30 per comanda. Si en vols més, escriu-nos.</span>
+        <span class="pista">Màxim 20 per comanda. Si en vols més, escriu-nos.</span>
       </div>
 
       <div class="troquel"></div>
@@ -508,7 +508,7 @@
 
   var CONFIG = {
     precio: 3,
-    maxPorPedido: 30,
+    maxPorPedido: 20,
     pagament: {
       revolut: {
         etiqueta: "Revolut", via: "Revolut", curt: "Revolut (Maria)",
