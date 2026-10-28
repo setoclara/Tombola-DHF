@@ -123,7 +123,7 @@ fet que algú altre la tindrà.
 Tot el que es toca sovint és a **`lib/db.js`**, a dalt de tot:
 
 - `PREU` — el preu per número (ara 3).
-- `RANGS` — els trams: internet 1–400, en mà 401–800. Si els canvies, el panell
+- `RANGS` — els trams: internet 1–300, en mà 301–600. Si els canvies, el panell
   agafa sol les etiquetes noves; no s'han de tocar enlloc més.
 - `METODES` — les formes de pagament, a nom de qui van i on es paga (`detall`, que és
   el que surt escrit als recordatoris que envia el panell).
