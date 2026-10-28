@@ -4,20 +4,27 @@ import {
   RANGS, METODES, PREU, jsonComanda
 } from "../lib/db.js";
 
-// Tot el que fa l'organització passa per aquí i demana la contrasenya
-// del panell (variable CLAU_PANELL a Vercel).
+// Tot el que fa l'organització passa per aquí. Hi ha dues contrasenyes:
+//
+//   CLAU_PANELL  — l'organització, el panell /admin: ho pot fer tot.
+//   CLAU_EQUIP   — l'equip, la pàgina /team: només donar altes de venda en
+//                  mà. Aquesta contrasenya la té molta gent i va per molts
+//                  mòbils, així que no pot confirmar, ni esborrar, ni veure
+//                  la llista de comandes de ningú.
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     res.status(405).json({ error: "method_not_allowed" });
     return;
   }
-  if (!clauCorrecta(req.headers["x-clau"])) {
-    // "configurada" diu si la variable CLAU_PANELL existeix en aquest
-    // desplegament. No revela la contrasenya, i permet distingir
-    // "l'has escrita malament" de "la variable no hi arriba".
+  const rol = rolDeLaClau(req.headers["x-clau"]);
+  if (!rol) {
+    // "configurada" diu si les variables existeixen en aquest desplegament.
+    // No revela cap contrasenya, i permet distingir "l'has escrita malament"
+    // de "la variable no hi arriba".
     res.status(401).json({
       error: "clau_incorrecta",
-      configurada: Boolean((process.env.CLAU_PANELL || "").trim())
+      configurada: Boolean(clauDe("CLAU_PANELL")),
+      equipConfigurat: Boolean(clauDe("CLAU_EQUIP"))
     });
     return;
   }
@@ -31,13 +38,19 @@ export default async function handler(req, res) {
   }
 
   try {
+    // El permís es mira abans de tocar la base de dades.
+    if (rol === "equip" && cos.accio !== "alta" && cos.accio !== "qui") {
+      res.status(403).json({ error: "accio_no_permesa" });
+      return;
+    }
     await assegurarEsquema();
     switch (cos.accio) {
+      case "qui": return qui(res, rol);
       case "llista": return await llista(res);
       case "confirma": return await confirma(cos, res);
       case "elimina": return await elimina(cos, res);
       case "correu": return await marcaCorreu(cos, res);
-      case "alta": return await alta(cos, res);
+      case "alta": return await alta(cos, res, rol);
       case "neteja": return await neteja(res);
       default:
         res.status(400).json({ error: "accio_desconeguda" });
@@ -48,16 +61,43 @@ export default async function handler(req, res) {
   }
 }
 
-function clauCorrecta(rebuda) {
-  // Es neteja als dos costats: enganxant la contrasenya a Vercel és fàcil
-  // que s'hi coli un espai o un salt de línia al final.
-  const bona = (process.env.CLAU_PANELL || "").trim();
+// Es neteja als dos costats: enganxant la contrasenya a Vercel és fàcil que
+// s'hi coli un espai o un salt de línia al final.
+function clauDe(variable) {
+  return (process.env[variable] || "").trim();
+}
+
+function mateixaClau(rebuda, bona) {
   const dita = typeof rebuda === "string" ? rebuda.trim() : "";
   if (!bona || !dita) return false;
   const a = Buffer.from(dita);
   const b = Buffer.from(bona);
   if (a.length !== b.length) return false;
   return timingSafeEqual(a, b);
+}
+
+// Torna "admin", "equip" o null. Les dues claus es comproven sempre, també
+// quan la primera ja ha encertat, perquè el temps de resposta no digui quina
+// de les dues era.
+function rolDeLaClau(rebuda) {
+  const esAdmin = mateixaClau(rebuda, clauDe("CLAU_PANELL"));
+  const esEquip = mateixaClau(rebuda, clauDe("CLAU_EQUIP"));
+  if (esAdmin) return "admin";
+  if (esEquip) return "equip";
+  return null;
+}
+
+// Diu amb quin rol s'ha entrat i les quatre dades que la pàgina necessita per
+// ensenyar imports i límits. No toca res: serveix per comprovar la contrasenya.
+function qui(res, rol) {
+  res.status(200).json({
+    ok: true,
+    rol: rol,
+    preu: PREU,
+    rangs: RANGS,
+    metodes: METODES,
+    maxAlta: rol === "equip" ? 20 : 100
+  });
 }
 
 async function llista(res) {
@@ -181,21 +221,24 @@ async function marcaCorreu(cos, res) {
 }
 
 // Alta manual: venda en mà, o una comanda que us arriba per un altre canal.
-async function alta(cos, res) {
+// L'equip només pot donar altes de venda en mà i d'una quantitat raonable;
+// l'organització no té aquests límits.
+async function alta(cos, res, rol) {
   const email = String(cos.email || "").trim().toLowerCase();
   // A l'alta manual el nom no és obligatori: moltes vendes en mà es fan
   // sense apuntar-lo.
   const nom = String(cos.nom || "").trim().replace(/\s+/g, " ").slice(0, 80);
   const quantitat = Number.parseInt(cos.quantitat, 10);
-  const canal = RANGS[cos.canal] ? cos.canal : "presencial";
+  const canal = rol === "equip" ? "presencial" : (RANGS[cos.canal] ? cos.canal : "presencial");
   const metode = METODES[cos.metode] ? cos.metode : "";
+  const maxim = rol === "equip" ? 20 : 100;
 
   if (!emailValid(email)) {
     res.status(400).json({ error: "correu_invalid" });
     return;
   }
-  if (!Number.isFinite(quantitat) || quantitat < 1 || quantitat > 100) {
-    res.status(400).json({ error: "quantitat_invalida" });
+  if (!Number.isFinite(quantitat) || quantitat < 1 || quantitat > maxim) {
+    res.status(400).json({ error: "quantitat_invalida", max: maxim });
     return;
   }
 

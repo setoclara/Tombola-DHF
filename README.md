@@ -9,6 +9,7 @@ no cap compte enlloc.
 
 - `index.html` — la pàgina pública (la comanda, el pagament, la confirmació)
 - `admin.html` — el panell d'organització, protegit amb contrasenya
+- `team.html` — la pàgina de l'equip (/team): només dona altes de venda en mà
 - `api/comanda.js` — el que crida la pàgina pública
 - `api/admin.js` — el que crida el panell
 - `api/export.js` — només llegeix: d'aquí surt la còpia al full de càlcul
@@ -46,11 +47,14 @@ no cap compte enlloc.
 3. Comprova que queda **connectada a aquest projecte** (Vercel hi posa sol la variable
    `DATABASE_URL`). No has de copiar cap clau.
 
-### 4. Posa la contrasenya del panell
+### 4. Posa les contrasenyes
 
 1. Pestanya **Settings → Environment Variables**.
 2. Nom: `CLAU_PANELL`. Valor: la contrasenya que vulguis (llarga, que no sigui
-   "tombola"). Marca els tres entorns. **Save**.
+   "tombola"). Marca els tres entorns. **Save**. És la de `/admin`, només per a
+   l'organització.
+3. **Afegeix-ne una altra** (no toquis la primera): `CLAU_EQUIP`, la de `/team`,
+   la que té tot l'equip. Marca també els tres entorns.
 
 ### 5. Torna a desplegar i prova-ho
 
@@ -95,10 +99,18 @@ tothom. No pot esborrar res ni assignar números.
 
 ## Les adreces
 
-| Adreça | Qui hi entra |
-|---|---|
-| `/` | Tothom. És la que reparteixes. |
-| `/admin` | Només vosaltres, amb la contrasenya. |
+| Adreça | Qui hi entra | Què hi pot fer |
+|---|---|---|
+| `/` | Tothom. És la que reparteixes. | Comprar números. |
+| `/admin` | L'organització, amb `CLAU_PANELL`. | Tot: confirmar, assignar, esborrar, correus. |
+| `/team` | L'equip, amb `CLAU_EQUIP`. | Només donar d'alta vendes en mà. |
+
+La pàgina `/team` està pensada per al dia a dia: es fa servir des de molts mòbils
+alhora i la contrasenya la té molta gent, així que **des d'allà no es pot veure ni
+tocar cap comanda**. El servidor no només amaga els botons: rebutja qualsevol acció
+que no sigui una alta, i a les altes de l'equip els imposa la venda en mà i un màxim
+de 20 números. Si dues persones donen d'alta alhora, cap número no es repeteix: ho
+impedeix la clau primària de la taula, igual que a la venda per internet.
 
 El panell porta `noindex`, així que no sortirà a Google. Tot i això, **la seva
 protecció és la contrasenya**: si la compartiu per un grup de WhatsApp gran, doneu per
