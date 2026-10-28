@@ -163,7 +163,7 @@
       <label for="quants">Quants números</label>
       <div class="comptador">
         <button type="button" class="pas" id="menys" aria-label="Un número menys">−</button>
-        <input type="number" id="quants" value="1" min="1" max="20" step="1" inputmode="numeric">
+        <input type="number" id="quants" value="1" min="1" max="30" step="1" inputmode="numeric">
         <button type="button" class="pas" id="mes" aria-label="Un número més">+</button>
       </div>
       <div class="dreceres" id="dreceres">
@@ -171,6 +171,8 @@
         <button type="button" class="drecera" data-n="2">2</button>
         <button type="button" class="drecera" data-n="5">5</button>
         <button type="button" class="drecera" data-n="10">10</button>
+        <button type="button" class="drecera" data-n="20">20</button>
+        <button type="button" class="drecera" data-n="30">30</button>
       </div>
       <span class="pista" id="total">1 número · 3,00 €</span>
     </div>
@@ -208,7 +210,7 @@
   // El preu i el màxim els diu el servidor en entrar; aquests només són el
   // que s'ensenya mentre no ha contestat.
   var PREU = 3;
-  var MAX = 20;
+  var MAX = 30;
   var CLAU_DESADA = "clauEquipDHF";
   var HISTORIAL = "altesEquipDHF";
 
