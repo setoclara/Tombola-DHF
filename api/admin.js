@@ -3,6 +3,7 @@ import {
   sql, assegurarEsquema, emailValid, novaRef,
   RANGS, METODES, PREU, jsonComanda
 } from "../lib/db.js";
+import { enviaCorreu, correuConfigurat, deQui } from "../lib/correu.js";
 
 // Tot el que fa l'organització passa per aquí. Hi ha dues contrasenyes:
 //
@@ -50,6 +51,7 @@ export default async function handler(req, res) {
       case "confirma": return await confirma(cos, res);
       case "elimina": return await elimina(cos, res);
       case "correu": return await marcaCorreu(cos, res);
+      case "envia": return await envia(cos, res);
       case "alta": return await alta(cos, res, rol);
       case "neteja": return await neteja(res);
       default:
@@ -96,7 +98,9 @@ function qui(res, rol) {
     preu: PREU,
     rangs: RANGS,
     metodes: METODES,
-    maxAlta: rol === "equip" ? 20 : 100
+    maxAlta: rol === "equip" ? 20 : 100,
+    correuAutomatic: correuConfigurat(),
+    correuDe: deQui()
   });
 }
 
@@ -120,6 +124,8 @@ async function llista(res) {
     preu: PREU,
     rangs: RANGS,
     metodes: METODES,
+    correuAutomatic: correuConfigurat(),
+    correuDe: deQui(),
     numerosAssignats: comptes,
     comandes: files.map(function (f) { return jsonComanda(f, f.numeros); })
   });
@@ -223,6 +229,51 @@ async function marcaCorreu(cos, res) {
 // Alta manual: venda en mà, o una comanda que us arriba per un altre canal.
 // L'equip només pot donar altes de venda en mà i d'una quantitat raonable;
 // l'organització no té aquests límits.
+// Envia un correu des del compte del club. El text el redacta el panell, però
+// el destinatari surt sempre de la comanda: des de fora no es pot fer servir
+// per escriure a ningú altre.
+async function envia(cos, res) {
+  const id = String(cos.id || "");
+  const assumpte = String(cos.assumpte || "").trim();
+  const text = String(cos.cos || "");
+  if (!/^\d+$/.test(id)) {
+    res.status(400).json({ error: "id_invalida" });
+    return;
+  }
+  if (!assumpte || !text) {
+    res.status(400).json({ error: "correu_buit" });
+    return;
+  }
+  if (assumpte.length > 200 || text.length > 20000) {
+    res.status(400).json({ error: "correu_massa_llarg" });
+    return;
+  }
+  if (!correuConfigurat()) {
+    res.status(503).json({ error: "correu_no_configurat" });
+    return;
+  }
+
+  const [comanda] = await sql`SELECT id, email FROM comandes WHERE id = ${id}::bigint`;
+  if (!comanda) {
+    res.status(404).json({ error: "comanda_no_trobada" });
+    return;
+  }
+
+  try {
+    await enviaCorreu({ per: comanda.email, assumpte: assumpte, cos: text });
+  } catch (e) {
+    console.error("envia:", e);
+    res.status(502).json({ error: "no_s_ha_pogut_enviar", detall: String(e && e.message || e) });
+    return;
+  }
+
+  // Marcar-lo com a enviat només quan el correu ha sortit de debò.
+  if (cos.marca !== false) {
+    await sql`UPDATE comandes SET correu_estat = 'enviat' WHERE id = ${id}::bigint`;
+  }
+  res.status(200).json({ ok: true, per: comanda.email, de: deQui(), marcat: cos.marca !== false });
+}
+
 async function alta(cos, res, rol) {
   const email = String(cos.email || "").trim().toLowerCase();
   // A l'alta manual el nom no és obligatori: moltes vendes en mà es fan
