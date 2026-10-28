@@ -642,6 +642,7 @@
       var td = document.createElement("td");
       td.className = "cel-accions";
       td.appendChild(botoMini("Confirma el pagament", "", function () { confirmar(c); }));
+      td.appendChild(botoMini("Recordatori de pagament", "", function () { obrirRecordatori(c); }));
       td.appendChild(botoDosPassos("Elimina", "Segur?", "perill", function () { esborrar(c, $("avisPendents")); }));
       tr.appendChild(td);
       cos.appendChild(tr);
@@ -783,6 +784,11 @@
   /* ---------- correus i CSV ---------- */
 
   var ASSUMPTE = "Ja tens els teus números del Sorteig DHF";
+  var ASSUMPTE_RECORDATORI = "El teu número del Sorteig DHF, pendent de pagament";
+
+  // Els correus surten del compte del club. Gmail obre la finestra de redacció
+  // ja amb aquest compte si hi ha la sessió iniciada; si no, demana entrar-hi.
+  var CORREU_CLUB = "juniordhfemeni@gmail.com";
 
   // Els premis del correu, per blocs. Per canviar-los, toca només això.
   var PREMIS = [
@@ -844,7 +850,7 @@
       "",
       "ELS TEUS NÚMEROS: " + c.numeros.join(", "),
       "",
-      "Guarda aquest correu: és el teu resguard. El sorteig es fa el 20 i 21 de novembre de 2026, i si et toca algun premi t'avisem de seguida.",
+      "Guarda aquest correu: és el teu resguard. El sorteig es fa el dissabte 21 de novembre de 2026, i si et toca algun premi t'avisem de seguida.",
       "",
       "QUÈ ES POT GUANYAR",
       "Els premis els posen els comerços i els amics del club. Això és el que es pot guanyar:"
@@ -872,18 +878,59 @@
   }
 
   // Obre una pestanya amb el correu ja redactat, a punt d'enviar.
-  function obrirCorreu(c) {
+  function obrirGmail(para, assumpte, cos) {
     var url = "https://mail.google.com/mail/?view=cm&fs=1"
-      + "&to=" + encodeURIComponent(c.email)
-      + "&su=" + encodeURIComponent(ASSUMPTE)
-      + "&body=" + encodeURIComponent(cosCorreu(c));
-    if (url.length > 7000) {
+      + "&authuser=" + encodeURIComponent(CORREU_CLUB)
+      + "&to=" + encodeURIComponent(para)
+      + "&su=" + encodeURIComponent(assumpte)
+      + "&body=" + encodeURIComponent(cos);
+    if (url.length > 7000) return null;
+    window.open(url, "_blank", "noopener");
+    return true;
+  }
+
+  function obrirCorreu(c) {
+    if (!obrirGmail(c.email, ASSUMPTE, cosCorreu(c))) {
       copiar(correuComText(c));
       avis($("avisAssignats"), "El correu és massa llarg per obrir-lo sol; l'he copiat perquè l'enganxis.", false);
       return;
     }
-    window.open(url, "_blank", "noopener");
-    avis($("avisAssignats"), "Correu obert per a " + c.email + ". Quan l'hagis enviat, prem \"Marca enviat\".", true);
+    avis($("avisAssignats"), "Correu obert per a " + c.email + ", des de " + CORREU_CLUB + ". Quan l'hagis enviat, prem \"Marca enviat\".", true);
+  }
+
+  // Recordatori per a qui ha fet la comanda i encara no li hem trobat el pagament.
+  function cosRecordatori(c) {
+    var com = Object.keys(dades.metodes || {}).map(function (id) {
+      var m = dades.metodes[id];
+      return "· " + m.via + " a " + m.nom + (m.detall ? ": " + m.detall : "");
+    });
+    return [
+      c.nom ? "Hola, " + String(c.nom).split(" ")[0] + "!" : "Hola!",
+      "",
+      "Tens una comanda de " + c.quantitat + (c.quantitat === 1 ? " número" : " números") +
+        " del Sorteig DHF, de " + eur(c.import) + ", i encara no n'hem trobat el pagament.",
+      "",
+      "CONCEPTE: " + c.ref,
+      "IMPORT: " + eur(c.import),
+      "",
+      "Pots pagar per qualsevol d'aquestes dues vies, posant-hi el concepte de dalt si l'app t'ho deixa:"
+    ].concat(com).concat([
+      "",
+      "Quan ho comprovem, et passem els números per correu.",
+      "Si ja l'has pagat aquests dies, no facis res: respon aquest correu i ho mirem.",
+      "",
+      "Gràcies per col·laborar amb el club!",
+      "Sorteig DHF"
+    ]).join("\n");
+  }
+
+  function obrirRecordatori(c) {
+    if (!obrirGmail(c.email, ASSUMPTE_RECORDATORI, cosRecordatori(c))) {
+      copiar(["Per a: " + c.email, "Assumpte: " + ASSUMPTE_RECORDATORI, "", cosRecordatori(c)].join("\n"));
+      avis($("avisPendents"), "El recordatori és massa llarg per obrir-lo sol; l'he copiat perquè l'enganxis.", false);
+      return;
+    }
+    avis($("avisPendents"), "Recordatori obert per a " + c.email + ", des de " + CORREU_CLUB + ".", true);
   }
 
   $("copiarCorreus").addEventListener("click", function () {

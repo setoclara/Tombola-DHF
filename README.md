@@ -113,7 +113,8 @@ Tot el que es toca sovint és a **`lib/db.js`**, a dalt de tot:
 - `PREU` — el preu per número (ara 3).
 - `RANGS` — els trams: internet 1–400, en mà 401–800. Si els canvies, el panell
   agafa sol les etiquetes noves; no s'han de tocar enlloc més.
-- `METODES` — les formes de pagament i a nom de qui van.
+- `METODES` — les formes de pagament, a nom de qui van i on es paga (`detall`, que és
+  el que surt escrit als recordatoris que envia el panell).
 - `MAX_PER_COMANDA` — el màxim de números per comanda (ara 20).
 
 Si canvies els noms o els telèfons, canvia'ls **també** al bloc `CONFIG` de dalt de tot
@@ -145,6 +146,16 @@ en un minut.
 - **Fre contra l'spam**: un mateix correu no pot obrir més de 30 comandes al dia.
 
 ---
+
+## Els correus
+
+El panell no envia res sol: obre el Gmail amb el correu ja escrit i l'envies tu. Totes
+dues finestres s'obren amb `authuser=juniordhfemeni@gmail.com`, o sigui que surten del
+compte del club si hi tens la sessió oberta; si no, el Gmail te la demanarà.
+
+- **Enviar correu**, a les comandes ja confirmades: els números i la llista de premis.
+- **Recordatori de pagament**, a les comandes per comprovar: el concepte, l'import i les
+  dues maneres de pagar. Per a qui ha fet la comanda i encara no li hem trobat el diner.
 
 ## El que encara no hi ha: el correu automàtic
 
