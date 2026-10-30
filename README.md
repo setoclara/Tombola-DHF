@@ -123,7 +123,8 @@ fet que algú altre la tindrà.
 Tot el que es toca sovint és a **`lib/db.js`**, a dalt de tot:
 
 - `PREU` — el preu per número (ara 3).
-- `RANGS` — els trams: internet 1–300, en mà 301–600. Si els canvies, el panell
+- `RANGS` — els trams: internet 1–300, en mà 301–600. Quan un s'acaba, les comandes
+  d'aquell canal agafen números de l'altre. Si els canvies, el panell
   agafa sol les etiquetes noves; no s'han de tocar enlloc més.
 - `METODES` — les formes de pagament, a nom de qui van i on es paga (`detall`, que és
   el que surt escrit als recordatoris que envia el panell).
@@ -140,10 +141,15 @@ en un minut.
 
 ## Com està fet, pel que pugui passar
 
-- **Els números es reparteixen a l'atzar dins del tram**, no per ordre de compra: qui
-  compra primer no es queda els números baixos. Els tria la base de dades
-  (`ORDER BY random()`) d'entre els que queden lliures, i al correu i al panell
-  surten ordenats de petit a gran.
+- **Els números es reparteixen a l'atzar**, no per ordre de compra: qui compra primer
+  no es queda els números baixos. Els tria la base de dades (`ORDER BY random()`)
+  d'entre els que queden lliures, i al correu i al panell surten ordenats de petit a
+  gran.
+- **Cada venda tira primer del seu tram i, si se li acaba, agafa de l'altre.** Si per
+  internet ja s'han venut els 300 primers, la comanda següent rep números del 301 al
+  600, i a l'inrevés. Només es diu "no queden números" quan no en queda cap dels 600.
+  Els comptadors del panell segueixen comptant per tram (quants números de l'1 al 300
+  s'han donat i quants del 301 al 600), no per qui els ha comprat.
 - **Un número no es pot donar dues vegades.** No ho vigila el codi: la taula `numeros`
   té el número com a clau primària, i la base de dades rebutja qualsevol repetició. Si
   dues persones confirmen alhora, una de les dues operacions falla i es reintenta amb

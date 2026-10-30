@@ -1,7 +1,7 @@
 import { timingSafeEqual } from "node:crypto";
 import {
   sql, assegurarEsquema, emailValid, novaRef,
-  RANGS, METODES, PREU, jsonComanda
+  RANGS, TOTS, METODES, PREU, jsonComanda
 } from "../lib/db.js";
 
 // Tot el que fa l'organització passa per aquí. Hi ha dues contrasenyes:
@@ -125,9 +125,15 @@ async function llista(res) {
   });
 }
 
-// Assigna números del tram a l'atzar i deixa la comanda pagada. A l'atzar i
-// no per ordre de compra: així no se sap qui ha comprat primer, i els números
-// repartits queden escampats per tot el tram.
+// Assigna números a l'atzar i deixa la comanda pagada. A l'atzar i no per
+// ordre de compra: així no se sap qui ha comprat primer, i els números
+// repartits queden escampats.
+//
+// Cada venda tira primer del seu tram (internet 1–300, en mà 301–600). Quan
+// al seu tram ja no en queden prous, agafa els que falten de l'altre tram,
+// també a l'atzar: val més donar un número del tram del costat que dir a algú
+// que ja no en queden mentre encara n'hi ha.
+//
 // Si dues confirmacions coincideixen en el mateix número, la clau primària
 // de la taula "numeros" en fa fallar una i es reintenta amb uns altres.
 async function confirma(cos, res) {
@@ -152,13 +158,16 @@ async function confirma(cos, res) {
   for (let intent = 0; intent < 5; intent++) {
     // Els tipus van explícits: sense els ::int, Postgres no sap de quin
     // tipus són els paràmetres de generate_series i la consulta peta.
-    // El tram té 700 números com a molt: mirar-los tots i triar-ne uns quants
-    // a l'atzar no costa res, i no cal provar números a cegues.
+    // Són 600 números: mirar-los tots i triar-ne uns quants a l'atzar no
+    // costa res, i no cal provar números a cegues.
+    //
+    // "propi" posa davant els del tram que toca; la resta només surten quan
+    // els del tram propi ja no basten.
     const lliures = await sql`
       SELECT g AS num
-      FROM generate_series(${rang[0]}::int, ${rang[1]}::int) g
+      FROM generate_series(${TOTS[0]}::int, ${TOTS[1]}::int) g
       WHERE NOT EXISTS (SELECT 1 FROM numeros n WHERE n.num = g)
-      ORDER BY random()
+      ORDER BY (g BETWEEN ${rang[0]}::int AND ${rang[1]}::int) DESC, random()
       LIMIT ${comanda.quantitat}::int`;
 
     if (lliures.length < comanda.quantitat) {
