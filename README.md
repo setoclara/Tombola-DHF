@@ -148,8 +148,9 @@ en un minut.
 - **Cada venda tira primer del seu tram i, si se li acaba, agafa de l'altre.** Si per
   internet ja s'han venut els 300 primers, la comanda següent rep números del 301 al
   600, i a l'inrevés. Només es diu "no queden números" quan no en queda cap dels 600.
-  Els comptadors del panell segueixen comptant per tram (quants números de l'1 al 300
-  s'han donat i quants del 301 al 600), no per qui els ha comprat.
+  Al panell, el comptador és un de sol sobre els 600, i a sota hi diu quants se n'han
+  venut per internet i quants en mà. Es compta per com s'ha fet la venda, no pel número
+  que ha tocat, que des d'aquest canvi ja no diu d'on ve.
 - **Un número no es pot donar dues vegades.** No ho vigila el codi: la taula `numeros`
   té el número com a clau primària, i la base de dades rebutja qualsevol repetició. Si
   dues persones confirmen alhora, una de les dues operacions falla i es reintenta amb

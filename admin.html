@@ -275,6 +275,8 @@
   /* ---------- panell ---------- */
   .panell { border-top: 1px solid var(--vora); padding-top: 34px; display: flex; flex-direction: column; gap: 20px; }
   .marcadors { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 12px; }
+  .marcador-ample { grid-column: 1 / -1; }
+  .marcador-peu { font-size: 0.86rem; color: var(--boira); margin-top: 2px; }
   .marcador { background: var(--nit-2); border: 1px solid var(--vora); border-radius: 11px; padding: 14px; display: flex; flex-direction: column; gap: 4px; }
   .marcador-valor { font-family: var(--condensada); font-weight: 700; font-size: 1.6rem; line-height: 1.05; font-variant-numeric: tabular-nums; }
   .marcador-clau { font-family: var(--condensada); font-weight: 600; font-size: 0.76rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--boira); }
@@ -351,15 +353,11 @@
   <div id="panel" hidden class="pila" style="gap: 20px;">
 
     <div class="marcadors">
-      <div class="marcador">
-        <span class="marcador-clau" id="clauOnline">Internet</span>
-        <span class="marcador-valor" id="mOnline">—</span>
-        <div class="medidor"><i id="barraOnline" style="width:0%"></i></div>
-      </div>
-      <div class="marcador">
-        <span class="marcador-clau" id="clauMano">En mà</span>
-        <span class="marcador-valor" id="mMano">—</span>
-        <div class="medidor"><i id="barraMano" style="width:0%"></i></div>
+      <div class="marcador marcador-ample">
+        <span class="marcador-clau" id="clauVenuts">Números venuts</span>
+        <span class="marcador-valor" id="mVenuts">—</span>
+        <div class="medidor"><i id="barraVenuts" style="width:0%"></i></div>
+        <span class="marcador-peu" id="peuVenuts">—</span>
       </div>
       <div class="marcador">
         <span class="marcador-clau">Cobrat</span>
@@ -590,19 +588,24 @@
   }
 
   function pintarMarcadors() {
-    var topeOn = dades.rangs.online[1] - dades.rangs.online[0] + 1;
-    var topeMa = dades.rangs.presencial[1] - dades.rangs.presencial[0] + 1;
+    // Els 600 van tots junts: el que importa és quants se n'han venut en total.
+    // A sota, d'on venen. Es compta per com s'ha fet la venda, no pel número,
+    // perquè un tram pot agafar números de l'altre quan se li acaben.
+    var tope = dades.totalNumeros ||
+      (dades.rangs.presencial[1] - dades.rangs.online[0] + 1);
     var on = dades.numerosAssignats.online || 0;
     var ma = dades.numerosAssignats.presencial || 0;
+    var venuts = dades.numerosAssignats.total;
+    if (typeof venuts !== "number") venuts = on + ma;
     var tram = function (r) { return numFmt.format(r[0]) + "–" + numFmt.format(r[1]); };
-    $("clauOnline").textContent = "Internet · " + tram(dades.rangs.online);
-    $("clauMano").textContent = "En mà · " + tram(dades.rangs.presencial);
+    $("clauVenuts").textContent = "Números venuts · " + numFmt.format(dades.rangs.online[0]) +
+      "–" + numFmt.format(dades.rangs.presencial[1]);
     $("aCanal").options[0].textContent = "En mà (" + tram(dades.rangs.presencial) + ")";
     $("aCanal").options[1].textContent = "Internet (" + tram(dades.rangs.online) + ")";
-    $("mOnline").textContent = numFmt.format(on) + " / " + numFmt.format(topeOn);
-    $("mMano").textContent = numFmt.format(ma) + " / " + numFmt.format(topeMa);
-    $("barraOnline").style.width = (on / topeOn * 100) + "%";
-    $("barraMano").style.width = (ma / topeMa * 100) + "%";
+    $("mVenuts").textContent = numFmt.format(venuts) + " / " + numFmt.format(tope);
+    $("barraVenuts").style.width = Math.min(100, venuts / tope * 100) + "%";
+    $("peuVenuts").textContent = numFmt.format(on) + " per internet · " +
+      numFmt.format(ma) + " en mà · en queden " + numFmt.format(Math.max(0, tope - venuts));
 
     var cobrat = 0, perComprovar = 0;
     dades.comandes.forEach(function (c) {

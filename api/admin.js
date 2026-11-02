@@ -110,10 +110,16 @@ async function llista(res) {
     GROUP BY c.id
     ORDER BY c.creat_el DESC`;
 
+  // Es compta per com s'ha venut la comanda, no per quin número li ha tocat:
+  // des que un tram pot agafar números de l'altre, el número ja no diu d'on ve
+  // la venda. El total és el que mana, perquè els 600 es reparteixen junts.
   const [comptes] = await sql`
     SELECT
-      (SELECT count(*)::int FROM numeros WHERE num BETWEEN ${RANGS.online[0]} AND ${RANGS.online[1]}) AS online,
-      (SELECT count(*)::int FROM numeros WHERE num BETWEEN ${RANGS.presencial[0]} AND ${RANGS.presencial[1]}) AS presencial`;
+      count(*)::int AS total,
+      count(*) FILTER (WHERE c.canal = 'online')::int AS online,
+      count(*) FILTER (WHERE c.canal = 'presencial')::int AS presencial
+    FROM numeros n
+    JOIN comandes c ON c.id = n.comanda_id`;
 
   res.status(200).json({
     ok: true,
@@ -121,6 +127,7 @@ async function llista(res) {
     rangs: RANGS,
     metodes: METODES,
     numerosAssignats: comptes,
+    totalNumeros: TOTS[1] - TOTS[0] + 1,
     comandes: files.map(function (f) { return jsonComanda(f, f.numeros); })
   });
 }
