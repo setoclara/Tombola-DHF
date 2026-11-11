@@ -167,6 +167,17 @@ en un minut.
 
 ---
 
+## Com s'ha cobrat
+
+Al panell, sota els comptadors, hi ha el repartiment del que s'ha cobrat: Revolut,
+cada un dels Bizums i el que s'ha venut en mà, amb l'import, els números i les
+comandes de cadascun. Només hi compten les comandes **confirmades**.
+
+El que es ven en mà hi va tot junt, com a efectiu, encara que a la comanda no hi
+consti cap mètode: a la parada es cobra en mà, i qui vol pagar per Bizum se li diu que
+ho faci per la web. Les vies d'ara surten sempre, encara que siguin a zero; un Bizum
+d'abans només surt si algú hi va pagar.
+
 ## Els correus
 
 El panell no envia res sol: obre el Gmail amb el correu ja escrit i l'envies tu. Totes

@@ -277,6 +277,16 @@
   .marcadors { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 12px; }
   .marcador-ample { grid-column: 1 / -1; }
   .marcador-peu { font-size: 0.86rem; color: var(--boira); margin-top: 2px; }
+  .vies { display: grid; gap: 0; }
+  .via {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 14px;
+    padding: 11px 0; border-top: 1px solid var(--vora);
+  }
+  .via:first-child { border-top: none; }
+  .via-nom { font-weight: 600; }
+  .via-detall { color: var(--boira); font-size: 0.86rem; }
+  .via-import { font-family: var(--condensada); font-weight: 700; font-size: 1.25rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .via[data-zero="true"] .via-nom, .via[data-zero="true"] .via-import { color: var(--boira); font-weight: 600; }
   .marcador { background: var(--nit-2); border: 1px solid var(--vora); border-radius: 11px; padding: 14px; display: flex; flex-direction: column; gap: 4px; }
   .marcador-valor { font-family: var(--condensada); font-weight: 700; font-size: 1.6rem; line-height: 1.05; font-variant-numeric: tabular-nums; }
   .marcador-clau { font-family: var(--condensada); font-weight: 600; font-size: 0.76rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--boira); }
@@ -371,6 +381,14 @@
         <span class="marcador-clau">Correus per enviar</span>
         <span class="marcador-valor" id="mCorreus">—</span>
       </div>
+    </div>
+
+    <div class="caixa">
+      <div class="caixa-cap">
+        <h3>Com s'ha cobrat</h3>
+      </div>
+      <div class="vies" id="vies"></div>
+      <p class="pista">Només les comandes ja confirmades. El que es ven a la parada va tot a "en mà", que es cobra en efectiu.</p>
     </div>
 
     <div class="caixa">
@@ -583,6 +601,7 @@
 
   function pintar() {
     pintarMarcadors();
+    pintarVies();
     pintarPendents();
     pintarAssignats();
   }
@@ -615,6 +634,39 @@
     $("mCobrat").textContent = eur(cobrat);
     $("mPerComprovar").textContent = eur(perComprovar);
     $("mCorreus").textContent = String(perEnviar().length);
+  }
+
+  // Quant ha entrat per cada via de pagament, de les comandes confirmades.
+  function pintarVies() {
+    var cont = $("vies");
+    cont.textContent = "";
+    (dades.cobratPerVia || []).forEach(function (v) {
+      var fila = document.createElement("div");
+      fila.className = "via";
+      fila.dataset.zero = String(!v.numeros);
+
+      var esquerra = document.createElement("div");
+      var nom = document.createElement("div");
+      nom.className = "via-nom";
+      nom.textContent = v.etiqueta;
+      esquerra.appendChild(nom);
+
+      var detall = document.createElement("div");
+      detall.className = "via-detall";
+      detall.textContent = v.numeros
+        ? numFmt.format(v.numeros) + (v.numeros === 1 ? " número · " : " números · ") +
+          numFmt.format(v.comandes) + (v.comandes === 1 ? " comanda" : " comandes")
+        : "cap";
+      esquerra.appendChild(detall);
+      fila.appendChild(esquerra);
+
+      var imp = document.createElement("div");
+      imp.className = "via-import";
+      imp.textContent = eur(v.import);
+      fila.appendChild(imp);
+
+      cont.appendChild(fila);
+    });
   }
 
   function pintarPendents() {

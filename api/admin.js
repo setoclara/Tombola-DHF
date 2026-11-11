@@ -1,7 +1,7 @@
 import { timingSafeEqual } from "node:crypto";
 import {
   sql, assegurarEsquema, emailValid, novaRef,
-  RANGS, TOTS, METODES, PREU, jsonComanda
+  RANGS, TOTS, METODES, METODES_VELLS, PREU, jsonComanda
 } from "../lib/db.js";
 
 // Tot el que fa l'organització passa per aquí. Hi ha dues contrasenyes:
@@ -126,10 +126,52 @@ async function llista(res) {
     preu: PREU,
     rangs: RANGS,
     metodes: METODES,
+    cobratPerVia: await cobratPerVia(),
     numerosAssignats: comptes,
     totalNumeros: TOTS[1] - TOTS[0] + 1,
     comandes: files.map(function (f) { return jsonComanda(f, f.numeros); })
   });
+}
+
+// Quant s'ha cobrat per cada via, de les comandes ja confirmades. El que es
+// ven en mà va tot junt com a efectiu, encara que no hi consti cap mètode:
+// a la parada es cobra en mà i qui vol pagar per Bizum ho fa per la web.
+async function cobratPerVia() {
+  const files = await sql`
+    SELECT
+      CASE WHEN canal = 'presencial' THEN 'ma'
+           ELSE COALESCE(NULLIF(metode, ''), 'sense') END AS clau,
+      count(*)::int AS comandes,
+      COALESCE(sum(quantitat), 0)::int AS numeros
+    FROM comandes
+    WHERE estat = 'pagat'
+    GROUP BY 1`;
+
+  const perClau = {};
+  files.forEach(function (f) { perClau[f.clau] = f; });
+
+  // Les vies d'ara surten sempre, encara que siguin a zero; les antigues,
+  // només si algú hi va pagar.
+  const claus = Object.keys(METODES).concat(["ma"]);
+  files.forEach(function (f) { if (claus.indexOf(f.clau) === -1) claus.push(f.clau); });
+
+  return claus.map(function (clau) {
+    const f = perClau[clau] || { comandes: 0, numeros: 0 };
+    return {
+      clau: clau,
+      etiqueta: etiquetaVia(clau),
+      comandes: f.comandes,
+      numeros: f.numeros,
+      import: f.numeros * PREU
+    };
+  });
+}
+
+function etiquetaVia(clau) {
+  if (clau === "ma") return "En mà (efectiu)";
+  if (METODES[clau]) return METODES[clau].curt;
+  if (METODES_VELLS[clau]) return METODES_VELLS[clau].curt;
+  return "Sense especificar";
 }
 
 // Assigna números a l'atzar i deixa la comanda pagada. A l'atzar i no per
