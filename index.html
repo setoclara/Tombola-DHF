@@ -369,14 +369,14 @@
 <main class="gutter centre pila" style="gap: 44px; padding-block: 8px 56px;">
 
   <!-- 0. mira si t'ha tocat (surt quan la venda s'ha tancat) -->
-  <section class="bitllet" id="zonaSorteig" hidden>
+  <section class="bitllet" id="zonaSorteig">
     <div class="bitllet-banda">
       <span>El sorteig</span>
       <span>21 de novembre</span>
     </div>
     <div class="bitllet-cos">
       <div>
-        <p class="total-mot">La venda s'ha tancat</p>
+        <p class="total-mot" id="motSorteig">Dissabte, a les 12</p>
         <h2 class="resguard-h2">Mira si t'ha tocat</h2>
       </div>
       <p class="pista">Escriu el teu número i et direm si ha sortit premiat. Si en tens més d'un, mira'ls d'un en un.</p>
@@ -801,7 +801,7 @@
   }
 
   function tancarLaVenda() {
-    zonaSorteig.hidden = false;
+    $("motSorteig").textContent = "La venda s'ha tancat";
     // Qui tingui una comanda a mig fer la pot acabar; la resta ja no en pot obrir.
     if (!pedidoActual) {
       var bitllet = document.querySelector(".bitllet:not(#zonaSorteig)");
