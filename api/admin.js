@@ -16,7 +16,7 @@ export default async function handler(req, res) {
     res.status(405).json({ error: "method_not_allowed" });
     return;
   }
-  const rol = rolDeLaClau(req.headers["x-clau"]);
+  const rol = rolDeLaClau(clauDeLaPeticio(req));
   if (!rol) {
     // "configurada" diu si les variables existeixen en aquest desplegament.
     // No revela cap contrasenya, i permet distingir "l'has escrita malament"
@@ -78,6 +78,20 @@ function mateixaClau(rebuda, bona) {
   const b = Buffer.from(bona);
   if (a.length !== b.length) return false;
   return timingSafeEqual(a, b);
+}
+
+// La contrasenya pot venir a la capçalera "x-clau" (les pàgines) o com a
+// "Authorization: Bearer ..." (eines que només saben enviar-la d'aquesta
+// manera). És la mateixa contrasenya; només canvia on va escrita.
+function clauDeLaPeticio(req) {
+  const directa = req.headers["x-clau"];
+  if (typeof directa === "string" && directa.trim()) return directa;
+  const auth = req.headers["authorization"];
+  if (typeof auth === "string") {
+    const tros = auth.match(/^Bearer\s+(.+)$/i);
+    if (tros) return tros[1];
+  }
+  return "";
 }
 
 // Torna "admin", "equip" o null. Les dues claus es comproven sempre, també
