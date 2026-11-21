@@ -189,7 +189,8 @@ Tot es fa des del panell, a la caixa **"El sorteig"**, que és la primera:
    comandes noves (el servidor les rebutja, no només la pàgina), i a la pàgina, en
    comptes del formulari, hi surt el quadre per mirar si un número ha sortit premiat.
    Qui tingui una comanda a mig fer la pot acabar igualment.
-2. **Entra els premis** a mesura que surtin, enganxant una línia per premi:
+2. **Els premis no s'entren des del panell**: els carrega qui tingui la contrasenya,
+   cridant l'API amb l'acció `guarda-premis` i una línia per premi:
 
    ```
    128 = Raqueta de tennis Wilson
@@ -197,10 +198,10 @@ Tot es fa des del panell, a la caixa **"El sorteig"**, que és la primera:
    412 - Lot Turris
    ```
 
-   Val l'igual, els dos punts o un guió. Les línies que no s'entenguin es diuen i la
-   resta es desen igualment. Si un número ja hi era, el premi nou substitueix el vell.
-3. A la taula de sota hi ha tots els premiats, **amb el nom de qui té el número** si
-   es va vendre per la web, i un botó per treure'n cap que s'hagi posat per error.
+   Val l'igual, els dos punts o un guió. Les línies que no s'entenguin es tornen a la
+   resposta i la resta es desen igualment. Si un número ja hi era, el premi nou
+   substitueix el vell. `premiats` els llista i `esborra-premi` en treu un.
+   El panell només diu quants n'hi ha entrats.
 
 Qui entra el seu número a la pàgina veu una de tres coses: el premi que li ha tocat,
 que no ha sortit premiat, o, si encara no s'ha entrat cap premi, que el sorteig encara
