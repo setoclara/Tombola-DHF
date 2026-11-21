@@ -181,6 +181,34 @@ consti cap mètode: a la parada es cobra en mà, i qui vol pagar per Bizum se li
 ho faci per la web. Les vies d'ara surten sempre, encara que siguin a zero; un Bizum
 d'abans només surt si algú hi va pagar.
 
+## El dia del sorteig
+
+Tot es fa des del panell, a la caixa **"El sorteig"**, que és la primera:
+
+1. **Tanca la venda** quan comenci. A partir d'aquell moment ningú no pot obrir
+   comandes noves (el servidor les rebutja, no només la pàgina), i a la pàgina, en
+   comptes del formulari, hi surt el quadre per mirar si un número ha sortit premiat.
+   Qui tingui una comanda a mig fer la pot acabar igualment.
+2. **Entra els premis** a mesura que surtin, enganxant una línia per premi:
+
+   ```
+   128 = Raqueta de tennis Wilson
+   57: Sopar per a 2 a La Bodegueta
+   412 - Lot Turris
+   ```
+
+   Val l'igual, els dos punts o un guió. Les línies que no s'entenguin es diuen i la
+   resta es desen igualment. Si un número ja hi era, el premi nou substitueix el vell.
+3. A la taula de sota hi ha tots els premiats, **amb el nom de qui té el número** si
+   es va vendre per la web, i un botó per treure'n cap que s'hagi posat per error.
+
+Qui entra el seu número a la pàgina veu una de tres coses: el premi que li ha tocat,
+que no ha sortit premiat, o, si encara no s'ha entrat cap premi, que el sorteig encara
+no s'ha fet. Això últim evita que algú que mira massa aviat entengui que no li ha tocat
+res.
+
+La venda es pot tornar a obrir amb el mateix botó.
+
 ## Els correus
 
 El panell no envia res sol: obre el Gmail amb el correu ja escrit i l'envies tu. Totes

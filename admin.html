@@ -385,6 +385,38 @@
 
     <div class="caixa">
       <div class="caixa-cap">
+        <h3>El sorteig</h3>
+        <div class="accions">
+          <button type="button" class="boto-pla" id="canviaVenda">—</button>
+        </div>
+      </div>
+      <p class="pista" id="estatVenda">—</p>
+
+      <div class="camp">
+        <label for="premisText">Números premiats</label>
+        <textarea id="premisText" rows="6" placeholder="128 = Raqueta de tennis Wilson&#10;57 = Sopar per a 2 a La Bodegueta&#10;412 = Lot Turris"></textarea>
+        <span class="pista">Una línia per premi: el número, un igual i el premi. També val amb dos punts o un guió. Si un número ja hi era, el premi nou substitueix el vell.</span>
+      </div>
+      <div class="accions">
+        <button type="button" class="boto" id="desaPremis">Desa els premis</button>
+      </div>
+      <p class="resultat" id="avisPremis" role="status" aria-live="polite"></p>
+
+      <div class="caixa-cap">
+        <h3>Premiats <span class="compte" id="compPremiats" data-zero="true">0</span></h3>
+      </div>
+      <div class="taula-caixa">
+        <table>
+          <thead>
+            <tr><th>Número</th><th>Premi</th><th>Qui el té</th><th></th></tr>
+          </thead>
+          <tbody id="cosPremiats"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="caixa">
+      <div class="caixa-cap">
         <h3>Comandes per comprovar <span class="compte" id="compPendents" data-zero="true">0</span></h3>
         <div class="accions">
           <button type="button" class="boto-pla" id="refresca">Actualitza</button>
@@ -505,6 +537,7 @@
       var err = new Error("error");
       err.codi = (cos && cos.error) || "error_servidor";
       err.detall = cos && cos.detall;
+      err.cos = cos;
       throw err;
     }
     return cos;
@@ -602,6 +635,7 @@
   function pintar() {
     pintarMarcadors();
     pintarVies();
+    pintarSorteig();
     pintarPendents();
     pintarAssignats();
   }
@@ -639,6 +673,86 @@
     $("mCobrat").textContent = eur(cobrat);
     $("mPerComprovar").textContent = eur(perComprovar);
     $("mCorreus").textContent = String(perEnviar().length);
+  }
+
+  /* ---------- el sorteig ---------- */
+
+  function pintarSorteig() {
+    var oberta = dades.vendaOberta !== false;
+    $("estatVenda").textContent = oberta
+      ? "La venda és oberta: la gent encara pot comprar números."
+      : "La venda està tancada. A la pàgina, en comptes del formulari, hi surt el quadre per mirar si un número ha sortit premiat.";
+    $("canviaVenda").textContent = oberta ? "Tanca la venda" : "Torna a obrir la venda";
+
+    var llista = dades.premiats || [];
+    $("compPremiats").textContent = String(llista.length);
+    $("compPremiats").dataset.zero = String(llista.length === 0);
+
+    var cos = $("cosPremiats");
+    cos.textContent = "";
+    if (!llista.length) {
+      var tr0 = document.createElement("tr");
+      cel·la(tr0, "Encara no hi ha cap premi entrat.", "buit").colSpan = 4;
+      cos.appendChild(tr0);
+      return;
+    }
+    llista.forEach(function (p) {
+      var tr = document.createElement("tr");
+      cel·la(tr, String(p.num), "nums");
+      cel·la(tr, p.premi);
+      cel·la(tr, p.nom || p.email || "—", "correu");
+      var td = document.createElement("td");
+      td.className = "cel-accions";
+      td.appendChild(botoDosPassos("Treu", "Segur?", "perill", function () { treuPremi(p); }));
+      tr.appendChild(td);
+      cos.appendChild(tr);
+    });
+  }
+
+  $("canviaVenda").addEventListener("click", async function () {
+    var oberta = dades.vendaOberta !== false;
+    var boto = this;
+    boto.disabled = true;
+    try {
+      await crida("venda", { oberta: !oberta });
+      await carregar();
+      avis($("avisPremis"), oberta ? "Venda tancada." : "Venda oberta un altre cop.", true);
+    } catch (e) {
+      avis($("avisPremis"), "No s'ha pogut canviar (" + e.codi + ")" + detallErr(e), false);
+    } finally {
+      boto.disabled = false;
+    }
+  });
+
+  $("desaPremis").addEventListener("click", async function () {
+    var text = $("premisText").value;
+    if (!text.trim()) { avis($("avisPremis"), "Escriu-hi alguna línia, per exemple \"128 = Raqueta Wilson\".", false); return; }
+    var boto = this;
+    boto.disabled = true;
+    avis($("avisPremis"), "Desant…", true);
+    try {
+      var r = await crida("guarda-premis", { text: text });
+      await carregar();
+      $("premisText").value = "";
+      var msg = r.desats + (r.desats === 1 ? " premi desat." : " premis desats.");
+      if (r.dolents && r.dolents.length) msg += " No he entès: " + r.dolents.join(" / ");
+      avis($("avisPremis"), msg, !(r.dolents && r.dolents.length));
+    } catch (e) {
+      var detall = e.cos && e.cos.dolents && e.cos.dolents.length ? " No he entès cap línia: " + e.cos.dolents.join(" / ") : "";
+      avis($("avisPremis"), "No s'ha pogut desar (" + e.codi + ")." + detall, false);
+    } finally {
+      boto.disabled = false;
+    }
+  });
+
+  async function treuPremi(p) {
+    try {
+      await crida("esborra-premi", { num: p.num });
+      await carregar();
+      avis($("avisPremis"), "Premi del número " + p.num + " tret.", true);
+    } catch (e) {
+      avis($("avisPremis"), "No s'ha pogut treure (" + e.codi + ")" + detallErr(e), false);
+    }
   }
 
   // Quant ha entrat per cada via de pagament, de les comandes confirmades.

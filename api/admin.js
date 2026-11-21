@@ -1,6 +1,6 @@
 import { timingSafeEqual } from "node:crypto";
 import {
-  sql, assegurarEsquema, emailValid, novaRef,
+  sql, assegurarEsquema, emailValid, novaRef, vendaOberta, desaVenda,
   RANGS, TOTS, METODES, METODES_VELLS, PREU, jsonComanda
 } from "../lib/db.js";
 
@@ -51,6 +51,10 @@ export default async function handler(req, res) {
       case "elimina": return await elimina(cos, res);
       case "correu": return await marcaCorreu(cos, res);
       case "alta": return await alta(cos, res, rol);
+      case "premiats": return await llistaPremiats(res);
+      case "guarda-premis": return await guardaPremis(cos, res);
+      case "esborra-premi": return await esborraPremi(cos, res);
+      case "venda": return await canviaVenda(cos, res);
       case "neteja": return await neteja(res);
       default:
         res.status(400).json({ error: "accio_desconeguda" });
@@ -128,6 +132,8 @@ async function llista(res) {
     rangs: RANGS,
     metodes: METODES,
     cobratPerVia: await cobratPerVia(),
+    vendaOberta: await vendaOberta(),
+    premiats: await premiats(),
     numerosAssignats: comptes,
     totalNumeros: TOTS[1] - TOTS[0] + 1,
     comandes: files.map(function (f) { return jsonComanda(f, f.numeros); })
@@ -143,6 +149,75 @@ async function numerosDeMes(quants, ultimConegut) {
   const extres = [];
   while (extres.length < quants) extres.push(seguent++);
   return extres;
+}
+
+// Els números premiats, amb qui els té si s'han venut.
+async function premiats() {
+  return await sql`
+    SELECT p.num, p.premi, c.nom, c.email
+    FROM premiats p
+    LEFT JOIN numeros n ON n.num = p.num
+    LEFT JOIN comandes c ON c.id = n.comanda_id
+    ORDER BY p.num`;
+}
+
+async function llistaPremiats(res) {
+  res.status(200).json({ ok: true, premiats: await premiats() });
+}
+
+// Desa premis a partir de línies "número = premi". Una per línia; també val
+// amb dos punts, un guió o una tabulació per separar-los.
+async function guardaPremis(cos, res) {
+  const text = String(cos.text || "");
+  if (text.length > 20000) {
+    res.status(400).json({ error: "massa_text" });
+    return;
+  }
+
+  const bons = [];
+  const dolents = [];
+  text.split("\n").forEach(function (linia) {
+    const net = linia.trim();
+    if (!net) return;
+    const tros = net.match(/^(\d{1,4})\s*(?:=|:|-|–|\t)\s*(.+)$/);
+    if (!tros) { dolents.push(net.slice(0, 60)); return; }
+    const num = Number.parseInt(tros[1], 10);
+    const premi = tros[2].trim().slice(0, 200);
+    if (!Number.isFinite(num) || num < TOTS[0] || num > 1500 || !premi) {
+      dolents.push(net.slice(0, 60));
+      return;
+    }
+    bons.push({ num: num, premi: premi });
+  });
+
+  if (!bons.length) {
+    res.status(400).json({ error: "cap_premi_entes", dolents: dolents });
+    return;
+  }
+
+  // Si un número ja hi era, el premi nou substitueix el vell.
+  await sql.transaction(bons.map(function (b) {
+    return sql`
+      INSERT INTO premiats (num, premi) VALUES (${b.num}::int, ${b.premi})
+      ON CONFLICT (num) DO UPDATE SET premi = EXCLUDED.premi`;
+  }));
+
+  res.status(200).json({ ok: true, desats: bons.length, dolents: dolents });
+}
+
+async function esborraPremi(cos, res) {
+  const num = Number.parseInt(cos.num, 10);
+  if (!Number.isFinite(num)) {
+    res.status(400).json({ error: "numero_invalid" });
+    return;
+  }
+  await sql`DELETE FROM premiats WHERE num = ${num}::int`;
+  res.status(200).json({ ok: true });
+}
+
+async function canviaVenda(cos, res) {
+  await desaVenda(cos.oberta !== false);
+  res.status(200).json({ ok: true, vendaOberta: await vendaOberta() });
 }
 
 // Quant s'ha cobrat per cada via, de les comandes ja confirmades. El que es

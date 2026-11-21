@@ -260,6 +260,13 @@
 
   .legal { font-size: 0.86rem; color: var(--boira); border-top: 1px solid var(--vora); padding-top: 18px; }
 
+  .resguard-h2 { font-family: var(--titol); font-style: italic; font-weight: 700; font-size: 1.7rem; margin: 0; }
+  .premi-text {
+    font-family: var(--condensada); font-weight: 700; font-size: clamp(1.4rem, 6vw, 2rem);
+    line-height: 1.1; color: var(--nit);
+  }
+  #zonaSorteig .bitllet-cos { gap: 16px; }
+
   /* ---------- el cartell dels premis ---------- */
   .premis {
     border: none; padding: 0; background: transparent;
@@ -360,6 +367,36 @@
 </header>
 
 <main class="gutter centre pila" style="gap: 44px; padding-block: 8px 56px;">
+
+  <!-- 0. mira si t'ha tocat (surt quan la venda s'ha tancat) -->
+  <section class="bitllet" id="zonaSorteig" hidden>
+    <div class="bitllet-banda">
+      <span>El sorteig</span>
+      <span>21 de novembre</span>
+    </div>
+    <div class="bitllet-cos">
+      <div>
+        <p class="total-mot">La venda s'ha tancat</p>
+        <h2 class="resguard-h2">Mira si t'ha tocat</h2>
+      </div>
+      <p class="pista">Escriu el teu número i et direm si ha sortit premiat. Si en tens més d'un, mira'ls d'un en un.</p>
+
+      <div class="camp">
+        <label for="numSorteig">El teu número</label>
+        <input type="number" id="numSorteig" min="1" max="1500" step="1" inputmode="numeric" placeholder="per exemple, 128" enterkeyhint="search">
+      </div>
+
+      <button type="button" class="boto" id="mirarNum">Mira'l</button>
+      <p class="error" id="errorSorteig" hidden></p>
+
+      <div id="resultatSorteig" hidden>
+        <div class="troquel"></div>
+        <p class="total-mot" id="resultatMot">—</p>
+        <p class="premi-text" id="resultatPremi">—</p>
+        <p class="pista" id="resultatPista"></p>
+      </div>
+    </div>
+  </section>
 
   <section class="bitllet" aria-labelledby="titolBitllet">
     <div class="bitllet-banda">
@@ -594,6 +631,7 @@
   }
 
   function textError(codi) {
+    if (codi === "venda_tancada") return "La venda ja s'ha tancat: el sorteig és avui. Mira més avall si el teu número ha sortit premiat.";
     if (codi === "correu_invalid") return "Aquest correu no sembla vàlid.";
     if (codi === "nom_invalid") return "Escriu el teu nom i el cognom.";
     if (codi === "quantitat_invalida") return "La quantitat ha de ser entre 1 i " + CONFIG.maxPorPedido + ".";
@@ -746,6 +784,85 @@
       zonaPedido.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   }
+
+  /* ---------- el sorteig: mira si t'ha tocat ---------- */
+
+  var zonaSorteig = $("zonaSorteig");
+
+  // Mentre la venda és oberta no hi ha res a consultar; quan es tanca des del
+  // panell, el bloc de la comanda deixa pas al de mirar el número.
+  async function mirarSiLaVendaEsOberta() {
+    try {
+      var r = await aviServidor("estat", {});
+      if (r.vendaOberta === false) tancarLaVenda();
+    } catch (e) {
+      // Si no es pot preguntar, es deixa la pàgina tal com està.
+    }
+  }
+
+  function tancarLaVenda() {
+    zonaSorteig.hidden = false;
+    // Qui tingui una comanda a mig fer la pot acabar; la resta ja no en pot obrir.
+    if (!pedidoActual) {
+      var bitllet = document.querySelector(".bitllet:not(#zonaSorteig)");
+      if (bitllet) bitllet.hidden = true;
+    }
+  }
+
+  async function mirarNumero() {
+    var brut = $("numSorteig").value.trim();
+    var num = parseInt(brut, 10);
+    var error = $("errorSorteig");
+    var resultat = $("resultatSorteig");
+    resultat.hidden = true;
+    if (!brut || !isFinite(num) || num < 1) {
+      error.textContent = "Escriu el número que tens, només la xifra.";
+      error.hidden = false;
+      $("numSorteig").focus();
+      return;
+    }
+    error.hidden = true;
+
+    var boto = $("mirarNum");
+    boto.disabled = true;
+    var textOriginal = boto.textContent;
+    boto.textContent = "Un moment…";
+    try {
+      var resposta = await fetch("/api/premi", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ num: num })
+      });
+      var r = await resposta.json();
+      if (!resposta.ok || !r.ok) throw new Error((r && r.error) || "error");
+
+      if (!r.hiHaPremis) {
+        $("resultatMot").textContent = "Número " + num;
+        $("resultatPremi").textContent = "Encara no hi ha resultats";
+        $("resultatPista").textContent = "El sorteig encara no s'ha fet o s'està fent ara mateix. Torna-ho a mirar d'aquí una estona.";
+      } else if (r.premi) {
+        $("resultatMot").textContent = "Número " + num + " · t'ha tocat!";
+        $("resultatPremi").textContent = r.premi;
+        $("resultatPista").textContent = "Ens posarem en contacte amb tu. Si vols, escriu-nos a juniordhfemeni@gmail.com.";
+      } else {
+        $("resultatMot").textContent = "Número " + num;
+        $("resultatPremi").textContent = "Aquest no ha sortit premiat";
+        $("resultatPista").textContent = "Gràcies per col·laborar amb el club! Si en tens més d'un, mira'ls d'un en un.";
+      }
+      resultat.hidden = false;
+    } catch (e) {
+      error.textContent = e.message === "numero_invalid"
+        ? "Aquest número no existeix en aquest sorteig."
+        : "Ara mateix no hi podem connectar. Torna-ho a provar d'aquí un moment.";
+      error.hidden = false;
+    } finally {
+      boto.disabled = false;
+      boto.textContent = textOriginal;
+    }
+  }
+
+  $("mirarNum").addEventListener("click", mirarNumero);
+  $("numSorteig").addEventListener("keydown", function (e) { if (e.key === "Enter") mirarNumero(); });
 
   /* ---------- el cartell dels premis ---------- */
 
@@ -904,6 +1021,10 @@
       if (guardado.fet) mostrarFet(guardado); else mostrarResguardo(guardado);
     }
   } catch (e) {}
+
+  // Es pregunta al final, quan la comanda desada ja s'ha recuperat: així, si la
+  // venda està tancada, es decideix bé si encara se li ha de deixar acabar.
+  mirarSiLaVendaEsOberta();
 })();
 </script>
 

@@ -1,5 +1,5 @@
 import {
-  sql, assegurarEsquema, emailValid, nomValid, novaRef,
+  sql, assegurarEsquema, emailValid, nomValid, novaRef, vendaOberta,
   METODES, MAX_PER_COMANDA, PREU
 } from "../lib/db.js";
 
@@ -21,6 +21,10 @@ export default async function handler(req, res) {
 
   try {
     await assegurarEsquema();
+    if (cos.accio === "estat") {
+      res.status(200).json({ ok: true, vendaOberta: await vendaOberta() });
+      return;
+    }
     if (cos.accio === "inicia") return await inicia(cos, res);
     if (cos.accio === "he-pagat") return await hePagat(cos, res);
     res.status(400).json({ error: "accio_desconeguda" });
@@ -33,6 +37,13 @@ export default async function handler(req, res) {
 // Es crida quan algú prem "Continua al pagament". Desa la comanda com a
 // "iniciada" i li torna el concepte de pagament, que genera el servidor.
 async function inicia(cos, res) {
+  // Un cop tancada la venda no s'obren comandes noves. Les que ja estaven a
+  // mig fer sí que es poden acabar: "he-pagat" segueix funcionant.
+  if (!(await vendaOberta())) {
+    res.status(409).json({ error: "venda_tancada" });
+    return;
+  }
+
   const email = String(cos.email || "").trim().toLowerCase();
   const nom = String(cos.nom || "").trim().replace(/\s+/g, " ");
   const quantitat = Number.parseInt(cos.quantitat, 10);
