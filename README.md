@@ -147,7 +147,10 @@ en un minut.
   gran.
 - **Cada venda tira primer del seu tram i, si se li acaba, agafa de l'altre.** Si per
   internet ja s'han venut els 300 primers, la comanda següent rep números del 301 al
-  600, i a l'inrevés. Només es diu "no queden números" quan no en queda cap dels 600.
+  600, i a l'inrevés.
+- **Passats els 600, la venda continua.** Els números següents es donen per ordre de
+  venda i no a l'atzar: el 601, el 602, el 603... La taula els accepta fins al 1500;
+  per passar d'aquí caldria apujar el límit de la columna amb un ALTER.
   Al panell, el comptador és un de sol sobre els 600, i a sota hi diu quants se n'han
   venut per internet i quants en mà. Es compta per com s'ha fet la venda, no pel número
   que ha tocat, que des d'aquest canvi ja no diu d'on ve.

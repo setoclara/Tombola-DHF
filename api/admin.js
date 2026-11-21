@@ -117,7 +117,8 @@ async function llista(res) {
     SELECT
       count(*)::int AS total,
       count(*) FILTER (WHERE c.canal = 'online')::int AS online,
-      count(*) FILTER (WHERE c.canal = 'presencial')::int AS presencial
+      count(*) FILTER (WHERE c.canal = 'presencial')::int AS presencial,
+      count(*) FILTER (WHERE n.num > ${TOTS[1]})::int AS extres
     FROM numeros n
     JOIN comandes c ON c.id = n.comanda_id`;
 
@@ -131,6 +132,17 @@ async function llista(res) {
     totalNumeros: TOTS[1] - TOTS[0] + 1,
     comandes: files.map(function (f) { return jsonComanda(f, f.numeros); })
   });
+}
+
+// Els números que es donen quan ja s'han repartit els 600: a partir del 601 i
+// amunt, un darrere l'altre i per ordre de venda. La taula els accepta fins al
+// 1500; passat aquest punt caldria un ALTER per pujar-ne el límit.
+async function numerosDeMes(quants, ultimConegut) {
+  const [fila] = await sql`SELECT COALESCE(max(num), 0)::int AS ultim FROM numeros`;
+  let seguent = Math.max(fila.ultim, ultimConegut) + 1;
+  const extres = [];
+  while (extres.length < quants) extres.push(seguent++);
+  return extres;
 }
 
 // Quant s'ha cobrat per cada via, de les comandes ja confirmades. El que es
@@ -219,12 +231,15 @@ async function confirma(cos, res) {
       ORDER BY (g BETWEEN ${rang[0]}::int AND ${rang[1]}::int) DESC, random()
       LIMIT ${comanda.quantitat}::int`;
 
-    if (lliures.length < comanda.quantitat) {
-      res.status(409).json({ error: "no_queden_numeros", lliures: lliures.length });
-      return;
+    // Quan dels 600 ja no en queden prous, els que falten són els següents de
+    // la sèrie: el 601, el 602... Aquests no van a l'atzar, van per ordre de
+    // venda, que és el que s'ha dit a qui compra.
+    const nums = lliures.map(function (f) { return f.num; });
+    if (nums.length < comanda.quantitat) {
+      const extres = await numerosDeMes(comanda.quantitat - nums.length, TOTS[1]);
+      Array.prototype.push.apply(nums, extres);
     }
-
-    const nums = lliures.map(function (f) { return f.num; }).sort(function (a, b) { return a - b; });
+    nums.sort(function (a, b) { return a - b; });
     try {
       // Una inserció per número, totes dins de la mateixa transacció: si
       // alguna falla no se n'aplica cap. Així no depenem de com es

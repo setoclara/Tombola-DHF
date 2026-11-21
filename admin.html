@@ -623,8 +623,13 @@
     $("aCanal").options[1].textContent = "Internet (" + tram(dades.rangs.online) + ")";
     $("mVenuts").textContent = numFmt.format(venuts) + " / " + numFmt.format(tope);
     $("barraVenuts").style.width = Math.min(100, venuts / tope * 100) + "%";
+    // Passats els 600 ja no en "queden": els que es venen són el 601 i amunt,
+    // per ordre de venda. Aleshores el peu ho diu així.
+    var extres = dades.numerosAssignats.extres || 0;
     $("peuVenuts").textContent = numFmt.format(on) + " per internet · " +
-      numFmt.format(ma) + " en mà · en queden " + numFmt.format(Math.max(0, tope - venuts));
+      numFmt.format(ma) + " en mà · " + (extres
+        ? numFmt.format(extres) + (extres === 1 ? " número" : " números") + " per sobre del " + numFmt.format(tope)
+        : "en queden " + numFmt.format(Math.max(0, tope - venuts)));
 
     var cobrat = 0, perComprovar = 0;
     dades.comandes.forEach(function (c) {
