@@ -189,19 +189,9 @@ Tot es fa des del panell, a la caixa **"El sorteig"**, que és la primera:
    comandes noves (el servidor les rebutja, no només la pàgina), i a la pàgina, en
    comptes del formulari, hi surt el quadre per mirar si un número ha sortit premiat.
    Qui tingui una comanda a mig fer la pot acabar igualment.
-2. **Els premis no s'entren des del panell**: els carrega qui tingui la contrasenya,
-   cridant l'API amb l'acció `guarda-premis` i una línia per premi:
-
-   ```
-   128 = Raqueta de tennis Wilson
-   57: Sopar per a 2 a La Bodegueta
-   412 - Lot Turris
-   ```
-
-   Val l'igual, els dos punts o un guió. Les línies que no s'entenguin es tornen a la
-   resposta i la resta es desen igualment. Si un número ja hi era, el premi nou
-   substitueix el vell. `premiats` els llista i `esborra-premi` en treu un.
-   El panell només diu quants n'hi ha entrats.
+2. **Els premis són a `lib/premis.js`**, un fitxer del codi: la clau és el número i el
+   valor, el regal. Per canviar-ne un, es canvia allà i es torna a desplegar. No calen
+   ni contrasenya ni base de dades, i el panell només en diu quants n'hi ha.
 
 Qui entra el seu número a la pàgina veu una de tres coses: el premi que li ha tocat,
 que no ha sortit premiat, o, si encara no s'ha entrat cap premi, que el sorteig encara

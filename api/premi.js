@@ -1,4 +1,5 @@
 import { sql, assegurarEsquema, TOTS, vendaOberta } from "../lib/db.js";
+import { PREMIS } from "../lib/premis.js";
 
 // Públic i de només lectura: algú escriu el seu número i se li diu si li ha
 // tocat res. No demana cap dada, i el resultat del sorteig és públic de totes
@@ -33,19 +34,18 @@ export default async function handler(req, res) {
   try {
     await assegurarEsquema();
 
-    const [premiat] = await sql`SELECT premi FROM premiats WHERE num = ${num}::int`;
+    const premi = Object.prototype.hasOwnProperty.call(PREMIS, num) ? PREMIS[num] : null;
     const [venut] = await sql`SELECT 1 AS hi_es FROM numeros WHERE num = ${num}::int`;
-    const [{ quants }] = await sql`SELECT count(*)::int AS quants FROM premiats`;
 
     res.setHeader("Cache-Control", "no-store");
     res.status(200).json({
       ok: true,
       num: num,
-      premi: premiat ? premiat.premi : null,
+      premi: premi,
       venut: Boolean(venut),
       // Si encara no s'ha entrat cap premi, el sorteig no s'ha fet: val més
       // dir-ho que deixar que algú entengui que no li ha tocat res.
-      hiHaPremis: quants > 0,
+      hiHaPremis: Object.keys(PREMIS).length > 0,
       vendaOberta: await vendaOberta()
     });
   } catch (e) {
